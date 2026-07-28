@@ -62,7 +62,7 @@ export function RightPanels() {
             { d: "S", h: 70 },
             { d: "D", h: 30 },
           ].map((b, i) => (
-            <div key={i} className="flex flex-1 flex-col items-center gap-2">
+            <div key={i} className="flex h-full flex-1 flex-col items-center gap-2">
               <div className="flex h-full w-full items-end rounded-lg bg-muted">
                 <div className="w-full rounded-lg bg-primary" style={{ height: `${b.h}%` }} />
               </div>
