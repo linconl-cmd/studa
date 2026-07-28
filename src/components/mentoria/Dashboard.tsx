@@ -250,7 +250,7 @@ export function MateriaPanel() {
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        <table className="w-full min-w-[720px] border-separate border-spacing-y-2 text-sm">
+        <table className="w-full min-w-[600px] border-separate border-spacing-y-2 text-sm">
           <thead>
             <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
               <th className="px-4 pb-1 font-semibold">Subtópico</th>
@@ -285,7 +285,7 @@ export function MateriaPanel() {
                   <td className="px-4 py-3.5 font-medium text-destructive">{r.err} ❌</td>
                   <td className="rounded-r-2xl px-4 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="h-2 w-24 rounded-full bg-background">
+                      <div className="h-2 w-16 rounded-full bg-background">
                         <div
                           className="h-2 rounded-full bg-primary"
                           style={{ width: `${pct}%` }}
