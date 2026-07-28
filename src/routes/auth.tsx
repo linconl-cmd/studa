@@ -171,7 +171,7 @@ function AuthPage() {
         </button>
 
         <p className="mt-5 text-center text-xs text-muted-foreground">
-          O primeiro cadastro da plataforma recebe o papel de mentor; os demais entram como alunos.
+          Com um código de convite válido você entra como mentor; sem código, como aluno.
         </p>
       </div>
     </main>
