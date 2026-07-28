@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { GraduationCap, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { INVITE_CODE_STORAGE_KEY } from "@/hooks/useSession";
 import { lovable } from "@/integrations/lovable/index";
 
 const title = "Entrar — Guerreiros Mentoria";
@@ -26,6 +27,7 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,6 +42,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        sessionStorage.setItem(INVITE_CODE_STORAGE_KEY, inviteCode.trim());
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -53,6 +56,11 @@ function AuthPage() {
           setInfo("Cadastro criado! Confirme seu e-mail para entrar.");
           return;
         }
+        await supabase.rpc("bootstrap_current_user", {
+          _full_name: name,
+          _invite_code: inviteCode.trim(),
+        });
+        sessionStorage.removeItem(INVITE_CODE_STORAGE_KEY);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -64,6 +72,7 @@ function AuthPage() {
       setLoading(false);
     }
   }
+
 
   async function handleGoogle() {
     setError(null);
@@ -114,6 +123,14 @@ function AuthPage() {
               onChange={(e) => setName(e.target.value)}
             />
           )}
+          {mode === "signup" && (
+            <input
+              className={input}
+              placeholder="Código de convite (opcional)"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+            />
+          )}
           <input
             className={input}
             type="email"
@@ -154,7 +171,7 @@ function AuthPage() {
         </button>
 
         <p className="mt-5 text-center text-xs text-muted-foreground">
-          O primeiro cadastro da plataforma recebe o papel de mentor; os demais entram como alunos.
+          Com um código de convite válido você entra como mentor; sem código, como aluno.
         </p>
       </div>
     </main>

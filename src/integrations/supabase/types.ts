@@ -233,7 +233,7 @@ export type Database = {
     }
     Functions: {
       bootstrap_current_user: {
-        Args: { _full_name?: string }
+        Args: { _full_name?: string; _invite_code?: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
       has_role: {
@@ -243,13 +243,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       submit_answer: {
         Args: { _question_id: string; _selected_answer: string }
         Returns: boolean
       }
     }
     Enums: {
-      app_role: "admin_mentor" | "student"
+      app_role: "super_admin" | "mentor" | "student"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -377,7 +378,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin_mentor", "student"],
+      app_role: ["super_admin", "mentor", "student"],
     },
   },
 } as const

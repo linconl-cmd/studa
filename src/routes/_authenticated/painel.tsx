@@ -8,12 +8,14 @@ import {
   ChartNoAxesColumn,
   BookOpen,
   ListChecks,
+  ShieldCheck,
   Loader2,
 } from "lucide-react";
 import { Sidebar, type NavItem } from "@/components/mentoria/Sidebar";
 import { MentorDashboard } from "@/components/mentoria/MentorDashboard";
 import { StudentDashboard } from "@/components/mentoria/StudentDashboard";
-import { useProfile, useRole, useSession } from "@/hooks/useSession";
+import { AdminUsers } from "@/components/mentoria/AdminUsers";
+import { isStaff, useProfile, useRole, useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -59,7 +61,8 @@ function Painel() {
   const profile = useProfile(user?.id);
   const [active, setActive] = useState("Home");
 
-  const isMentor = role.data === "admin_mentor";
+  const isSuperAdmin = role.data === "super_admin";
+  const isMentor = isStaff(role.data);
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -77,32 +80,47 @@ function Painel() {
   }
 
   const nome = profile.data?.full_name || user.email || "Usuário";
+  const nav = isMentor
+    ? isSuperAdmin
+      ? [...mentorNav, { label: "Gerenciar Usuários", icon: ShieldCheck }]
+      : mentorNav
+    : studentNav;
+  const showAdminUsers = isSuperAdmin && active === "Gerenciar Usuários";
 
   return (
     <div className="flex min-h-screen w-full bg-background">
       <Sidebar
-        items={isMentor ? mentorNav : studentNav}
+        items={nav}
         active={active}
         onSelect={setActive}
         userName={nome}
-        userRole={isMentor ? "Mentor · Administrador" : "Aluno"}
+        userRole={isSuperAdmin ? "Admin Master" : isMentor ? "Mentor" : "Aluno"}
         onSignOut={handleSignOut}
       />
 
       <main className="min-w-0 flex-1 px-4 py-6 pt-20 sm:px-8 lg:pt-8">
         <header className="mb-6">
           <h1 className="truncate font-display text-2xl font-bold sm:text-3xl">
-            Olá, {nome.split(" ")[0]} 👋
+            {showAdminUsers ? "Gerenciar Usuários" : `Olá, ${nome.split(" ")[0]} 👋`}
           </h1>
           <p className="text-sm text-muted-foreground">
-            {isMentor
-              ? "Visão geral da mentoria — todos os alunos e matérias"
-              : "Seu painel pessoal de estudos"}
+            {showAdminUsers
+              ? "Todos os cadastros da plataforma — alunos, mentores e administradores"
+              : isMentor
+                ? "Visão geral da mentoria — todos os alunos e matérias"
+                : "Seu painel pessoal de estudos"}
           </p>
         </header>
 
-        {isMentor ? <MentorDashboard /> : <StudentDashboard userId={user.id} />}
+        {showAdminUsers ? (
+          <AdminUsers currentUserId={user.id} />
+        ) : isMentor ? (
+          <MentorDashboard />
+        ) : (
+          <StudentDashboard userId={user.id} />
+        )}
       </main>
     </div>
   );
 }
+

@@ -3,7 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "admin_mentor" | "student";
+export type AppRole = "super_admin" | "mentor" | "student";
+
+export const INVITE_CODE_STORAGE_KEY = "guerreiros:invite-code";
 
 export function useSession() {
   const [user, setUser] = useState<User | null>(null);
@@ -26,7 +28,8 @@ export function useSession() {
 
 /**
  * Garante perfil + papel do usuário logado (RPC idempotente) e devolve o papel.
- * O primeiro usuário cadastrado vira mentor; os demais viram alunos.
+ * Código de convite correto no cadastro => mentor; caso contrário => aluno.
+ * O primeiro usuário da plataforma vira admin master.
  */
 export function useRole(userId: string | undefined) {
   return useQuery({
@@ -34,11 +37,23 @@ export function useRole(userId: string | undefined) {
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("bootstrap_current_user", { _full_name: "" });
+      const inviteCode =
+        typeof window !== "undefined"
+          ? (sessionStorage.getItem(INVITE_CODE_STORAGE_KEY) ?? "")
+          : "";
+      const { data, error } = await supabase.rpc("bootstrap_current_user", {
+        _full_name: "",
+        _invite_code: inviteCode,
+      });
       if (error) throw error;
+      if (typeof window !== "undefined") sessionStorage.removeItem(INVITE_CODE_STORAGE_KEY);
       return data as AppRole;
     },
   });
+}
+
+export function isStaff(role: AppRole | undefined) {
+  return role === "super_admin" || role === "mentor";
 }
 
 export function useProfile(userId: string | undefined) {
