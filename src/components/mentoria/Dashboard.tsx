@@ -1,4 +1,15 @@
-import { Users, UserCheck, Target, Plus, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { useState } from "react";
+import {
+  Users,
+  UserCheck,
+  Target,
+  Plus,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Settings2,
+} from "lucide-react";
+
 
 function Gauge({ value }: { value: number }) {
   const r = 52;
