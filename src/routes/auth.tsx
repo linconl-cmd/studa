@@ -26,6 +26,7 @@ function AuthPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,6 +41,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        sessionStorage.setItem(INVITE_CODE_STORAGE_KEY, inviteCode.trim());
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -53,6 +55,11 @@ function AuthPage() {
           setInfo("Cadastro criado! Confirme seu e-mail para entrar.");
           return;
         }
+        await supabase.rpc("bootstrap_current_user", {
+          _full_name: name,
+          _invite_code: inviteCode.trim(),
+        });
+        sessionStorage.removeItem(INVITE_CODE_STORAGE_KEY);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -64,6 +71,7 @@ function AuthPage() {
       setLoading(false);
     }
   }
+
 
   async function handleGoogle() {
     setError(null);
