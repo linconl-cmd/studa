@@ -1,26 +1,23 @@
 import { useState } from "react";
-import {
-  House,
-  Users,
-  FolderOpen,
-  FilePlus2,
-  ChartNoAxesColumn,
-  MessagesSquare,
-  GraduationCap,
-  Menu,
-} from "lucide-react";
+import { GraduationCap, Menu, LogOut, type LucideIcon } from "lucide-react";
 
-const items = [
-  { label: "Home", icon: House },
-  { label: "Meus Alunos", icon: Users },
-  { label: "Gerenciador de Conteúdo", icon: FolderOpen },
-  { label: "Criação de Simulados", icon: FilePlus2 },
-  { label: "Análise de Progresso", icon: ChartNoAxesColumn },
-  { label: "Fórum de Dúvidas", icon: MessagesSquare },
-];
+export type NavItem = { label: string; icon: LucideIcon };
 
-export function Sidebar() {
-  const [active, setActive] = useState("Home");
+export function Sidebar({
+  items,
+  active,
+  onSelect,
+  userName,
+  userRole,
+  onSignOut,
+}: {
+  items: NavItem[];
+  active: string;
+  onSelect: (label: string) => void;
+  userName: string;
+  userRole: string;
+  onSignOut: () => void;
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -50,9 +47,7 @@ export function Sidebar() {
             <GraduationCap className="h-6 w-6" />
           </div>
           <div className="min-w-0">
-            <p className="truncate font-display text-base font-bold leading-tight">
-              Guerreiros
-            </p>
+            <p className="truncate font-display text-base font-bold leading-tight">Guerreiros</p>
             <p className="truncate text-xs text-muted-foreground">Mentoria de Estudos</p>
           </div>
         </div>
@@ -64,7 +59,7 @@ export function Sidebar() {
               <button
                 key={item.label}
                 onClick={() => {
-                  setActive(item.label);
+                  onSelect(item.label);
                   setOpen(false);
                 }}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
@@ -81,8 +76,14 @@ export function Sidebar() {
         </nav>
 
         <div className="mt-auto rounded-2xl bg-secondary p-4">
-          <p className="text-sm font-semibold text-secondary-foreground">Prof. Rafael Lima</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">Mentor · Administrador</p>
+          <p className="truncate text-sm font-semibold text-secondary-foreground">{userName}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">{userRole}</p>
+          <button
+            onClick={onSignOut}
+            className="mt-3 inline-flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-xs font-semibold text-foreground"
+          >
+            <LogOut className="h-3.5 w-3.5" /> Sair
+          </button>
         </div>
       </aside>
     </>
