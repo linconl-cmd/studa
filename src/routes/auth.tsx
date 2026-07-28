@@ -123,6 +123,14 @@ function AuthPage() {
               onChange={(e) => setName(e.target.value)}
             />
           )}
+          {mode === "signup" && (
+            <input
+              className={input}
+              placeholder="Código de convite (opcional)"
+              value={inviteCode}
+              onChange={(e) => setInviteCode(e.target.value)}
+            />
+          )}
           <input
             className={input}
             type="email"
