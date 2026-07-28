@@ -1,4 +1,15 @@
-import { Users, UserCheck, Target, Plus, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { useState } from "react";
+import {
+  Users,
+  UserCheck,
+  Target,
+  Plus,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Settings2,
+} from "lucide-react";
+
 
 function Gauge({ value }: { value: number }) {
   const r = 52;
@@ -129,15 +140,19 @@ export function Assiduidade() {
     <section className="rounded-3xl bg-card p-6 shadow-soft">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
         <div className="min-w-0">
-          <h2 className="truncate font-display text-lg font-bold">Assiduidade dos Alunos</h2>
-          <p className="text-xs text-muted-foreground">Últimas 5 semanas de atividade</p>
+          <h2 className="truncate font-display text-lg font-bold">
+            Engajamento Semanal dos Alunos
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Últimas 5 semanas · 96 de 128 alunos estudaram hoje
+          </p>
         </div>
         <div className="flex shrink-0 items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-success" /> Presente
+            <span className="h-2.5 w-2.5 rounded-full bg-success" /> Estudou
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-destructive" /> Ausente
+            <span className="h-2.5 w-2.5 rounded-full bg-destructive" /> Sem atividade
           </span>
         </div>
       </div>
@@ -162,48 +177,100 @@ export function Assiduidade() {
   );
 }
 
-const rows = [
-  { t: "Sintaxe", time: "12h 30m", ok: 184, err: 42 },
-  { t: "Morfologia", time: "9h 15m", ok: 141, err: 58 },
-  { t: "Interpretação de Texto", time: "15h 05m", ok: 226, err: 39 },
-  { t: "Ortografia e Acentuação", time: "6h 40m", ok: 98, err: 21 },
-  { t: "Concordância Verbal", time: "8h 20m", ok: 112, err: 66 },
-];
+type Row = { t: string; time: string; ok: number; err: number; origem: string };
+
+const materias: Record<string, { desc: string; rows: Row[] }> = {
+  "Língua Portuguesa": {
+    desc: "Desempenho por subtópico · 128 alunos · 6 simulados aplicados",
+    rows: [
+      { t: "Sintaxe", time: "12h 30m", ok: 184, err: 42, origem: "Simulado ENEM 03" },
+      { t: "Morfologia", time: "9h 15m", ok: 141, err: 58, origem: "Lista de Exercícios 07" },
+      {
+        t: "Interpretação de Texto",
+        time: "15h 05m",
+        ok: 226,
+        err: 39,
+        origem: "Simulado Linguagens 02",
+      },
+      { t: "Ortografia e Acentuação", time: "6h 40m", ok: 98, err: 21, origem: "Exercícios 04" },
+      { t: "Concordância Verbal", time: "8h 20m", ok: 112, err: 66, origem: "Simulado ENEM 03" },
+    ],
+  },
+  Redação: {
+    desc: "Desempenho por competência · 128 alunos · 4 propostas corrigidas",
+    rows: [
+      { t: "Competência 1 — Norma culta", time: "4h 10m", ok: 88, err: 24, origem: "Proposta 04" },
+      { t: "Competência 3 — Argumentação", time: "5h 45m", ok: 74, err: 46, origem: "Proposta 03" },
+      { t: "Competência 5 — Intervenção", time: "3h 30m", ok: 61, err: 52, origem: "Proposta 04" },
+    ],
+  },
+  Matemática: {
+    desc: "Módulo em preparação · dados dos primeiros exercícios",
+    rows: [
+      { t: "Razão e Proporção", time: "5h 20m", ok: 96, err: 48, origem: "Exercícios 01" },
+      { t: "Funções", time: "4h 05m", ok: 71, err: 59, origem: "Exercícios 02" },
+    ],
+  },
+};
 
 export function MateriaPanel() {
+  const nomes = Object.keys(materias);
+  const [atual, setAtual] = useState(nomes[0]);
+  const { desc, rows } = materias[atual];
+
   return (
     <section className="rounded-3xl bg-card p-6 shadow-soft">
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
         <div className="min-w-0">
-          <h2 className="truncate font-display text-2xl font-bold">Língua Portuguesa</h2>
-          <p className="text-xs text-muted-foreground">Desempenho por subtópico · Turma Guerreiros 2026</p>
+          <h2 className="truncate font-display text-2xl font-bold">{atual}</h2>
+          <p className="text-xs text-muted-foreground">{desc}</p>
         </div>
         <button className="inline-flex shrink-0 items-center gap-2 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90">
+          <Settings2 className="h-4 w-4" /> Gerenciar Matérias
+        </button>
+      </div>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {nomes.map((n) => (
+          <button
+            key={n}
+            onClick={() => setAtual(n)}
+            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+              n === atual
+                ? "bg-secondary text-secondary-foreground"
+                : "bg-muted text-muted-foreground hover:bg-secondary/60"
+            }`}
+          >
+            {n}
+          </button>
+        ))}
+        <button className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-4 py-2 text-sm font-semibold text-primary">
           <Plus className="h-4 w-4" /> Adicionar Matéria
         </button>
       </div>
 
       <div className="mt-5 overflow-x-auto">
-        <table className="w-full min-w-[640px] border-separate border-spacing-y-2 text-sm">
+        <table className="w-full min-w-[600px] border-separate border-spacing-y-2 text-sm">
           <thead>
             <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
               <th className="px-4 pb-1 font-semibold">Subtópico</th>
+              <th className="px-4 pb-1 font-semibold">Origem</th>
               <th className="px-4 pb-1 font-semibold">
                 <span className="inline-flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5" /> Tempo de Estudo
+                  <Clock className="h-3.5 w-3.5" /> Tempo
                 </span>
               </th>
               <th className="px-4 pb-1 font-semibold">
                 <span className="inline-flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Questões Resolvidas
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Acertadas
                 </span>
               </th>
               <th className="px-4 pb-1 font-semibold">
                 <span className="inline-flex items-center gap-1.5">
-                  <XCircle className="h-3.5 w-3.5" /> Questões Erradas
+                  <XCircle className="h-3.5 w-3.5" /> Erradas
                 </span>
               </th>
-              <th className="px-4 pb-1 font-semibold">% de Acerto</th>
+              <th className="px-4 pb-1 font-semibold">% Acerto</th>
             </tr>
           </thead>
           <tbody>
@@ -212,12 +279,13 @@ export function MateriaPanel() {
               return (
                 <tr key={r.t} className="bg-muted/60">
                   <td className="rounded-l-2xl px-4 py-3.5 font-semibold">{r.t}</td>
+                  <td className="px-4 py-3.5 text-xs text-muted-foreground">{r.origem}</td>
                   <td className="px-4 py-3.5 text-muted-foreground">{r.time}</td>
                   <td className="px-4 py-3.5 font-medium text-success">{r.ok} ✅</td>
                   <td className="px-4 py-3.5 font-medium text-destructive">{r.err} ❌</td>
                   <td className="rounded-r-2xl px-4 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="h-2 w-24 rounded-full bg-background">
+                      <div className="h-2 w-16 rounded-full bg-background">
                         <div
                           className="h-2 rounded-full bg-primary"
                           style={{ width: `${pct}%` }}
@@ -235,3 +303,4 @@ export function MateriaPanel() {
     </section>
   );
 }
+
