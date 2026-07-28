@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { GraduationCap, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { INVITE_CODE_STORAGE_KEY } from "@/hooks/useSession";
 import { lovable } from "@/integrations/lovable/index";
 
 const title = "Entrar — Guerreiros Mentoria";
