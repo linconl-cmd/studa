@@ -116,13 +116,6 @@ export type Database = {
             referencedRelation: "questions"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "student_answers_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "questions_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       study_sessions: {
@@ -236,48 +229,7 @@ export type Database = {
       }
     }
     Views: {
-      questions_public: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          options: Json | null
-          statement: string | null
-          subject_id: string | null
-          topic_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          options?: Json | null
-          statement?: string | null
-          subject_id?: string | null
-          topic_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          options?: Json | null
-          statement?: string | null
-          subject_id?: string | null
-          topic_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "questions_subject_id_fkey"
-            columns: ["subject_id"]
-            isOneToOne: false
-            referencedRelation: "subjects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "questions_topic_id_fkey"
-            columns: ["topic_id"]
-            isOneToOne: false
-            referencedRelation: "topics"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       bootstrap_current_user: {
