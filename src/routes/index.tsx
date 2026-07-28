@@ -1,14 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Search, Bell } from "lucide-react";
-import { Sidebar } from "@/components/mentoria/Sidebar";
-import { KpiCards, Assiduidade, MateriaPanel } from "@/components/mentoria/Dashboard";
-import { RightPanels } from "@/components/mentoria/RightPanels";
-import { ContentStudio } from "@/components/mentoria/ContentStudio";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { GraduationCap, LineChart, ListChecks, Users } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { useSession } from "@/hooks/useSession";
 
-
-const title = "Guerreiros Mentoria — Painel do Mentor";
+const title = "Guerreiros Mentoria — Plataforma de Mentoria de Estudos";
 const description =
-  "Plataforma de mentoria de estudos: acompanhe alunos, progresso por matéria, simulados e assiduidade em um painel único.";
+  "Plataforma de mentoria de estudos: mentores acompanham alunos, matérias e simulados; alunos registram tempo de estudo e medem seu desempenho.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,49 +20,45 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const destaques = [
+  { icon: Users, t: "Turmas e Alunos", d: "Acompanhe cada aluno e o engajamento da turma." },
+  { icon: ListChecks, t: "Simulados", d: "Crie questões e corrija automaticamente." },
+  { icon: LineChart, t: "Progresso", d: "Tempo de estudo, acertos e constância em tempo real." },
+];
+
 function Index() {
+  const { user, loading } = useSession();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && user) navigate({ to: "/painel", replace: true });
+  }, [user, loading, navigate]);
+
   return (
-    <div className="flex min-h-screen w-full bg-background">
-      <Sidebar />
-
-      <main className="min-w-0 flex-1 px-4 py-6 pt-20 sm:px-8 lg:pt-8">
-        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 sm:flex sm:justify-between">
-          <div className="min-w-0">
-            <h1 className="truncate font-display text-2xl font-bold sm:text-3xl">
-              Olá, Prof. Rafael 👋
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Visão geral da mentoria — semana de 27 de julho
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <div className="hidden items-center gap-2 rounded-full bg-card px-4 py-2.5 shadow-soft sm:flex">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                placeholder="Buscar aluno..."
-                className="w-36 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-              />
-            </div>
-            <button
-              aria-label="Notificações"
-              className="grid h-10 w-10 place-items-center rounded-full bg-card shadow-soft"
-            >
-              <Bell className="h-4 w-4" />
-            </button>
-          </div>
-        </header>
-
-        <div className="mt-6 flex flex-col gap-5 xl:flex-row">
-          <div className="flex min-w-0 flex-1 flex-col gap-5">
-            <KpiCards />
-            <Assiduidade />
-            <MateriaPanel />
-            <ContentStudio />
-
-          </div>
-          <RightPanels />
+    <main className="min-h-screen bg-background px-6 py-16">
+      <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary text-primary-foreground">
+          <GraduationCap className="h-7 w-7" />
         </div>
-      </main>
-    </div>
+        <h1 className="mt-6 font-display text-4xl font-bold sm:text-5xl">Guerreiros Mentoria</h1>
+        <p className="mt-4 text-muted-foreground">{description}</p>
+        <Link
+          to="/auth"
+          className="mt-8 inline-flex rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+        >
+          Entrar na plataforma
+        </Link>
+
+        <div className="mt-12 grid gap-4 sm:grid-cols-3">
+          {destaques.map((d) => (
+            <div key={d.t} className="rounded-3xl bg-card p-6 text-left shadow-soft">
+              <d.icon className="h-5 w-5 text-primary" />
+              <p className="mt-3 font-display text-sm font-bold">{d.t}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{d.d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </main>
   );
 }
