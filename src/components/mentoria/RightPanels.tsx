@@ -19,13 +19,14 @@ export function RightPanels() {
       <section className="rounded-3xl bg-card p-6 shadow-soft">
         <div className="flex items-center gap-2">
           <Flag className="h-4 w-4 text-primary" />
-          <h3 className="font-display text-sm font-bold">Metas do Aluno</h3>
+          <h3 className="font-display text-sm font-bold">Metas de Estudo Semanal</h3>
         </div>
+        <p className="mt-1 text-xs text-muted-foreground">Média da turma · 128 alunos</p>
         <ul className="mt-4 space-y-3">
           {[
-            { n: "Redações entregues", v: 6, t: 8 },
-            { n: "Questões na semana", v: 240, t: 300 },
-            { n: "Simulados no mês", v: 2, t: 3 },
+            { n: "Redações entregues", v: 5.2, t: 8 },
+            { n: "Questões na semana", v: 218, t: 300 },
+            { n: "Simulados no mês", v: 1.8, t: 3 },
           ].map((m) => (
             <li key={m.n}>
               <div className="flex justify-between text-xs">
@@ -50,8 +51,8 @@ export function RightPanels() {
           <Timer className="h-4 w-4 text-primary" />
           <h3 className="font-display text-sm font-bold">Estudo Semanal</h3>
         </div>
-        <p className="mt-3 font-display text-3xl font-bold">21h 40m</p>
-        <p className="text-xs text-muted-foreground">Meta: 25h por semana</p>
+        <p className="mt-3 font-display text-3xl font-bold">18h 15m</p>
+        <p className="text-xs text-muted-foreground">Média por aluno · meta de 25h</p>
         <div className="mt-5 flex h-28 items-end gap-2">
           {[
             { d: "S", h: 55 },
