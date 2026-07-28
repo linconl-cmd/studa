@@ -2,23 +2,21 @@ import { useState } from "react";
 import {
   House,
   Users,
-  BookOpen,
-  ClipboardList,
+  FolderOpen,
+  FilePlus2,
   ChartNoAxesColumn,
-  CalendarDays,
-  MessageSquareHeart,
+  MessagesSquare,
   GraduationCap,
   Menu,
 } from "lucide-react";
 
 const items = [
   { label: "Home", icon: House },
-  { label: "Turmas e Alunos", icon: Users },
-  { label: "Conteúdos da Mentoria", icon: BookOpen },
-  { label: "Simulados e Exercícios", icon: ClipboardList },
-  { label: "Acompanhamento de Progresso", icon: ChartNoAxesColumn },
-  { label: "Calendário de Mentoria", icon: CalendarDays },
-  { label: "Relatórios e Feedback", icon: MessageSquareHeart },
+  { label: "Meus Alunos", icon: Users },
+  { label: "Gerenciador de Conteúdo", icon: FolderOpen },
+  { label: "Criação de Simulados", icon: FilePlus2 },
+  { label: "Análise de Progresso", icon: ChartNoAxesColumn },
+  { label: "Fórum de Dúvidas", icon: MessagesSquare },
 ];
 
 export function Sidebar() {
@@ -84,7 +82,7 @@ export function Sidebar() {
 
         <div className="mt-auto rounded-2xl bg-secondary p-4">
           <p className="text-sm font-semibold text-secondary-foreground">Prof. Rafael Lima</p>
-          <p className="mt-0.5 text-xs text-muted-foreground">Mentor responsável</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">Mentor · Administrador</p>
         </div>
       </aside>
     </>
