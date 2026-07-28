@@ -8,12 +8,14 @@ import {
   ChartNoAxesColumn,
   BookOpen,
   ListChecks,
+  ShieldCheck,
   Loader2,
 } from "lucide-react";
 import { Sidebar, type NavItem } from "@/components/mentoria/Sidebar";
 import { MentorDashboard } from "@/components/mentoria/MentorDashboard";
 import { StudentDashboard } from "@/components/mentoria/StudentDashboard";
-import { useProfile, useRole, useSession } from "@/hooks/useSession";
+import { AdminUsers } from "@/components/mentoria/AdminUsers";
+import { isStaff, useProfile, useRole, useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 
