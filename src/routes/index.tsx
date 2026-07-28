@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Search, Bell } from "lucide-react";
 import { Sidebar } from "@/components/mentoria/Sidebar";
 import { KpiCards, Assiduidade, MateriaPanel } from "@/components/mentoria/Dashboard";
+import { RightPanels } from "@/components/mentoria/RightPanels";
 import { ContentStudio } from "@/components/mentoria/ContentStudio";
+
 
 const title = "Guerreiros Mentoria — Painel do Mentor";
 const description =
