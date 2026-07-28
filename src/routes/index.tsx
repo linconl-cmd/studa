@@ -59,6 +59,8 @@ function Index() {
             <KpiCards />
             <Assiduidade />
             <MateriaPanel />
+            <ContentStudio />
+
           </div>
           <RightPanels />
         </div>
