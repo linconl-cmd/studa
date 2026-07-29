@@ -94,7 +94,8 @@ function Painel() {
     : studentNav;
   const showAdminUsers = isSuperAdmin && active === "Gerenciar Usuários";
   const showBranding = isMentor && active === "Configurações da Marca";
-  const showProfile = active === "Meu Perfil";
+  const showProfile =
+    active === "Meu Perfil" || (!isMentor && active === "Configurações da Marca");
 
   const subtitle = showProfile
     ? "Seus dados pessoais e foto de perfil"
