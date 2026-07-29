@@ -83,7 +83,7 @@ function Painel() {
     );
   }
 
-  const nome = profile.data?.full_name || user.email || "Usuário";
+  const nome = profile.data?.full_name?.trim() || "Usuário";
   const roleLabel = isSuperAdmin ? "Admin Master" : isMentor ? "Mentor" : "Aluno";
   const nav: NavItem[] = isMentor
     ? [
