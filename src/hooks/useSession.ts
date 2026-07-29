@@ -39,14 +39,19 @@ export function useRole(userId: string | undefined) {
     queryFn: async () => {
       const inviteCode =
         typeof window !== "undefined"
-          ? (sessionStorage.getItem(INVITE_CODE_STORAGE_KEY) ?? "")
+          ? (localStorage.getItem(INVITE_CODE_STORAGE_KEY) ??
+             sessionStorage.getItem(INVITE_CODE_STORAGE_KEY) ??
+             "")
           : "";
       const { data, error } = await supabase.rpc("bootstrap_current_user", {
         _full_name: "",
         _invite_code: inviteCode,
       });
       if (error) throw error;
-      if (typeof window !== "undefined") sessionStorage.removeItem(INVITE_CODE_STORAGE_KEY);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem(INVITE_CODE_STORAGE_KEY);
+        sessionStorage.removeItem(INVITE_CODE_STORAGE_KEY);
+      }
       return data as AppRole;
     },
   });
