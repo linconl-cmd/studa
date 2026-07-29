@@ -17,7 +17,13 @@ function Card({ children }: { children: React.ReactNode }) {
   return <section className="rounded-3xl bg-card p-6 shadow-soft">{children}</section>;
 }
 
-export function MentorDashboard() {
+export function MentorDashboard({ section = "Home" }: { section?: string }) {
+  const showHome = section === "Home";
+  const showStudents = section === "Meus Alunos";
+  const showContent = section === "Gerenciador de Conteúdo";
+  const showQuiz = section === "Criação de Simulados";
+  const showProgress = section === "Análise de Progresso";
+
   const students = useStudents();
   const sessions = useStudySessions();
   const answers = useAnswers();
