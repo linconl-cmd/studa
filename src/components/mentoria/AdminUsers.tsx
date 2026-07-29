@@ -118,7 +118,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
                                   { userId: u.id, role: e.target.value as AppRole },
                                   {
                                     onSuccess: () => setError(null),
-                                    onError: (err) =>
+                                    onError: (err: unknown) =>
                                       setError(
                                         err instanceof Error
                                           ? err.message
