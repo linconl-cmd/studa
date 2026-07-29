@@ -216,3 +216,65 @@ export function useSubmitAnswer() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["student_answers"] }),
   });
 }
+
+/* ---------------- admin master ---------------- */
+
+export function useDeleteSubject() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("subjects").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["subjects"] });
+      qc.invalidateQueries({ queryKey: ["topics"] });
+      qc.invalidateQueries({ queryKey: ["questions_meta"] });
+    },
+  });
+}
+
+export function useDeleteTopic() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("topics").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["topics"] });
+      qc.invalidateQueries({ queryKey: ["questions_meta"] });
+    },
+  });
+}
+
+export function useDeleteQuestion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("questions").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["questions"] });
+      qc.invalidateQueries({ queryKey: ["questions_meta"] });
+    },
+  });
+}
+
+export function useSetUserRole() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { userId: string; role: "super_admin" | "mentor" | "student" }) => {
+      const { error } = await supabase.rpc("set_user_role", {
+        _user_id: input.userId,
+        _role: input.role,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["managed_users"] });
+      qc.invalidateQueries({ queryKey: ["students"] });
+    },
+  });
+}
