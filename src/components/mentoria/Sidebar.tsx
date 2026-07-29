@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { GraduationCap, Menu, LogOut, type LucideIcon } from "lucide-react";
+import { Menu, LogOut, type LucideIcon } from "lucide-react";
+import { BrandMark } from "@/components/BrandProvider";
 
 export type NavItem = { label: string; icon: LucideIcon };
 
