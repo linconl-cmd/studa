@@ -244,6 +244,13 @@ export type Database = {
         Returns: boolean
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
+      set_user_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       submit_answer: {
         Args: { _question_id: string; _selected_answer: string }
         Returns: boolean
