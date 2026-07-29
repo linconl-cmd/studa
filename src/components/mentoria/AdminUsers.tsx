@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { deleteUserAccount } from "@/lib/admin.functions";
+import { useSetUserRole } from "@/lib/mentoria";
 import type { AppRole } from "@/hooks/useSession";
 
 type ManagedUser = {
