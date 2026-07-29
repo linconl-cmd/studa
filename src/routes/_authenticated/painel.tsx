@@ -115,7 +115,7 @@ function Painel() {
         {showAdminUsers ? (
           <AdminUsers currentUserId={user.id} />
         ) : isMentor ? (
-          <MentorDashboard />
+          <MentorDashboard section={active} />
         ) : (
           <StudentDashboard userId={user.id} />
         )}
