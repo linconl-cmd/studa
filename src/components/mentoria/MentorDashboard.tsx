@@ -66,7 +66,7 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
     const acertos = ans.filter((x) => x.is_correct).length;
     return {
       id: a.id,
-      nome: a.full_name || a.email || "Aluno",
+      nome: a.full_name?.trim() || "Aluno",
       minutos: ss.reduce((t, s) => t + s.study_time_minutes, 0),
       acertos,
       erros: ans.length - acertos,

@@ -20,7 +20,7 @@ export function AppHeader({ onSelectSection }: { onSelectSection?: (section: str
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const nome = profile.data?.full_name || user?.email || "Usuário";
+  const nome = profile.data?.full_name?.trim() || "Usuário";
   const initials = nome
     .split(" ")
     .slice(0, 2)
