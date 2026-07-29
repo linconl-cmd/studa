@@ -1,11 +1,15 @@
 import { useMemo, useState } from "react";
-import { Users, Clock, CheckCircle2, XCircle, Plus, Loader2 } from "lucide-react";
+import { Users, Clock, CheckCircle2, XCircle, Plus, Loader2, Trash2 } from "lucide-react";
 import {
   useAllQuestionsMeta,
   useAnswers,
   useCreateQuestion,
   useCreateSubject,
   useCreateTopic,
+  useDeleteQuestion,
+  useDeleteSubject,
+  useDeleteTopic,
+  useQuestions,
   useStudents,
   useStudySessions,
   useSubjects,
