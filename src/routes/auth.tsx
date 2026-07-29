@@ -44,13 +44,15 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        const fullName = name.trim();
+        if (!fullName) throw new Error("Informe seu nome completo.");
         localStorage.setItem(INVITE_CODE_STORAGE_KEY, inviteCode.trim());
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: name, invite_code: inviteCode.trim() },
+            data: { full_name: fullName, invite_code: inviteCode.trim() },
           },
         });
         if (error) throw error;
@@ -59,7 +61,7 @@ function AuthPage() {
           return;
         }
         await supabase.rpc("bootstrap_current_user", {
-          _full_name: name,
+          _full_name: fullName,
           _invite_code: inviteCode.trim(),
         });
         localStorage.removeItem(INVITE_CODE_STORAGE_KEY);
@@ -116,6 +118,7 @@ function AuthPage() {
           {mode === "signup" && (
             <input
               className={input}
+              required
               placeholder="Seu nome completo"
               value={name}
               onChange={(e) => setName(e.target.value)}
