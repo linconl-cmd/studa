@@ -167,7 +167,9 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
           ))}
         </div>
       </Card>
+      )}
 
+      {(showHome || showStudents) && (
       <Card>
         <h2 className="font-display text-lg font-bold">Meus Alunos</h2>
         <p className="text-xs text-muted-foreground">Desempenho individual consolidado</p>
