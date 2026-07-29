@@ -44,13 +44,13 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        sessionStorage.setItem(INVITE_CODE_STORAGE_KEY, inviteCode.trim());
+        localStorage.setItem(INVITE_CODE_STORAGE_KEY, inviteCode.trim());
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: name },
+            data: { full_name: name, invite_code: inviteCode.trim() },
           },
         });
         if (error) throw error;
@@ -62,7 +62,7 @@ function AuthPage() {
           _full_name: name,
           _invite_code: inviteCode.trim(),
         });
-        sessionStorage.removeItem(INVITE_CODE_STORAGE_KEY);
+        localStorage.removeItem(INVITE_CODE_STORAGE_KEY);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
