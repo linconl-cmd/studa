@@ -94,6 +94,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
                       <th className="pb-2">Nome</th>
                       <th className="pb-2">E-mail</th>
                       <th className="pb-2">Cadastro</th>
+                      <th className="pb-2">Papel</th>
                       <th className="pb-2 text-right">Ações</th>
                     </tr>
                   </thead>
