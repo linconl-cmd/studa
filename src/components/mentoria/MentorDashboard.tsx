@@ -207,7 +207,9 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
           </table>
         </div>
       </Card>
+      )}
 
+      {(showHome || showProgress) && (
       <Card>
         <h2 className="font-display text-2xl font-bold">
           {subjects.data?.find((s) => s.id === currentSubject)?.title ?? "Matérias"}
