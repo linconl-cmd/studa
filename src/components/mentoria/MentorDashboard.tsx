@@ -89,6 +89,7 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
 
   return (
     <div className="flex flex-col gap-5">
+      {showHome && (
       <div className="grid gap-5 lg:grid-cols-3">
         <Card>
           <p className="font-display text-sm font-semibold text-muted-foreground">
