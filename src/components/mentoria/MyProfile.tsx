@@ -20,9 +20,11 @@ export function MyProfile({ userId, roleLabel }: { userId: string; roleLabel: st
 
   const save = useMutation({
     mutationFn: async () => {
+      const nome = fullName.trim();
+      if (!nome) throw new Error("O nome não pode ficar vazio.");
       const { error } = await supabase
         .from("profiles")
-        .update({ full_name: fullName.trim(), avatar_url: avatarUrl.trim() || null })
+        .update({ full_name: nome, avatar_url: avatarUrl.trim() || null })
         .eq("id", userId);
       if (error) throw error;
     },
@@ -68,6 +70,7 @@ export function MyProfile({ userId, roleLabel }: { userId: string; roleLabel: st
           Nome completo
           <input
             className={`${input} mt-1`}
+            required
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
           />
