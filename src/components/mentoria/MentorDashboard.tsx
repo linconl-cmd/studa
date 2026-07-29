@@ -285,8 +285,12 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
           </table>
         </div>
       </Card>
+      )}
 
-      <ContentManager subjectId={currentSubject} topicById={topicById} />
+      {(showContent || showQuiz) && (
+        <ContentManager subjectId={currentSubject} topicById={topicById} />
+      )}
+      {(showContent || showQuiz) && <QuestionBank subjectId={currentSubject} />}
     </div>
   );
 }
