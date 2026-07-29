@@ -103,6 +103,35 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
                         <td className="py-3 text-muted-foreground">
                           {dateFmt.format(new Date(u.created_at))}
                         </td>
+                        <td className="py-3">
+                          {u.id === currentUserId ? (
+                            <span className="text-xs text-muted-foreground">Admin Master</span>
+                          ) : (
+                            <select
+                              value={u.role}
+                              disabled={setRole.isPending}
+                              onChange={(e) =>
+                                setRole.mutate(
+                                  { userId: u.id, role: e.target.value as AppRole },
+                                  {
+                                    onSuccess: () => setError(null),
+                                    onError: (err) =>
+                                      setError(
+                                        err instanceof Error
+                                          ? err.message
+                                          : "Não foi possível alterar o papel.",
+                                      ),
+                                  },
+                                )
+                              }
+                              className="rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary"
+                            >
+                              <option value="student">Aluno</option>
+                              <option value="mentor">Mentor</option>
+                              <option value="super_admin">Admin Master</option>
+                            </select>
+                          )}
+                        </td>
                         <td className="py-3 text-right">
                           {u.id === currentUserId ? (
                             <span className="text-xs text-muted-foreground">Você</span>
