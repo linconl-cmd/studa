@@ -38,6 +38,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
   const users = useManagedUsers();
   const qc = useQueryClient();
   const remove = useServerFn(deleteUserAccount);
+  const setRole = useSetUserRole();
   const [error, setError] = useState<string | null>(null);
 
   const del = useMutation({
