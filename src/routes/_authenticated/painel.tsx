@@ -84,12 +84,27 @@ function Painel() {
   }
 
   const nome = profile.data?.full_name || user.email || "Usuário";
-  const nav = isMentor
-    ? isSuperAdmin
-      ? [...mentorNav, { label: "Gerenciar Usuários", icon: ShieldCheck }]
-      : mentorNav
+  const roleLabel = isSuperAdmin ? "Admin Master" : isMentor ? "Mentor" : "Aluno";
+  const nav: NavItem[] = isMentor
+    ? [
+        ...mentorNav,
+        { label: "Configurações da Marca", icon: Palette },
+        ...(isSuperAdmin ? [{ label: "Gerenciar Usuários", icon: ShieldCheck }] : []),
+      ]
     : studentNav;
   const showAdminUsers = isSuperAdmin && active === "Gerenciar Usuários";
+  const showBranding = isMentor && active === "Configurações da Marca";
+  const showProfile = active === "Meu Perfil";
+
+  const subtitle = showProfile
+    ? "Seus dados pessoais e foto de perfil"
+    : showBranding
+      ? "Personalize nome, logotipo e cores da sua plataforma"
+      : showAdminUsers
+        ? "Todos os cadastros da plataforma — alunos, mentores e administradores"
+        : isMentor
+          ? "Visão geral da mentoria — todos os alunos e matérias"
+          : "Seu painel pessoal de estudos";
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -98,25 +113,26 @@ function Painel() {
         active={active}
         onSelect={setActive}
         userName={nome}
-        userRole={isSuperAdmin ? "Admin Master" : isMentor ? "Mentor" : "Aluno"}
+        userRole={roleLabel}
         onSignOut={handleSignOut}
       />
 
       <main className="min-w-0 flex-1 px-4 py-6 pt-20 sm:px-8 lg:pt-8">
-        <header className="mb-6">
-          <h1 className="truncate font-display text-2xl font-bold sm:text-3xl">
-            {active === "Home" ? `Olá, ${nome.split(" ")[0]} 👋` : active}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {showAdminUsers
-              ? "Todos os cadastros da plataforma — alunos, mentores e administradores"
-              : isMentor
-                ? "Visão geral da mentoria — todos os alunos e matérias"
-                : "Seu painel pessoal de estudos"}
-          </p>
-        </header>
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <header>
+            <h1 className="truncate font-display text-2xl font-bold sm:text-3xl">
+              {active === "Home" ? `Olá, ${nome.split(" ")[0]} 👋` : active}
+            </h1>
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
+          </header>
+          <AppHeader onSelectSection={setActive} />
+        </div>
 
-        {showAdminUsers ? (
+        {showProfile ? (
+          <MyProfile userId={user.id} roleLabel={roleLabel} />
+        ) : showBranding ? (
+          <BrandSettings />
+        ) : showAdminUsers ? (
           <AdminUsers currentUserId={user.id} />
         ) : isMentor ? (
           <MentorDashboard section={active} />
