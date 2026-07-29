@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { deleteUserAccount } from "@/lib/admin.functions";
+import { useSetUserRole } from "@/lib/mentoria";
 import type { AppRole } from "@/hooks/useSession";
 
 type ManagedUser = {
@@ -38,6 +39,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
   const users = useManagedUsers();
   const qc = useQueryClient();
   const remove = useServerFn(deleteUserAccount);
+  const setRole = useSetUserRole();
   const [error, setError] = useState<string | null>(null);
 
   const del = useMutation({
@@ -92,6 +94,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
                       <th className="pb-2">Nome</th>
                       <th className="pb-2">E-mail</th>
                       <th className="pb-2">Cadastro</th>
+                      <th className="pb-2">Papel</th>
                       <th className="pb-2 text-right">Ações</th>
                     </tr>
                   </thead>
@@ -102,6 +105,35 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
                         <td className="py-3 text-muted-foreground">{u.email ?? "—"}</td>
                         <td className="py-3 text-muted-foreground">
                           {dateFmt.format(new Date(u.created_at))}
+                        </td>
+                        <td className="py-3">
+                          {u.id === currentUserId ? (
+                            <span className="text-xs text-muted-foreground">Admin Master</span>
+                          ) : (
+                            <select
+                              value={u.role}
+                              disabled={setRole.isPending}
+                              onChange={(e) =>
+                                setRole.mutate(
+                                  { userId: u.id, role: e.target.value as AppRole },
+                                  {
+                                    onSuccess: () => setError(null),
+                                    onError: (err: unknown) =>
+                                      setError(
+                                        err instanceof Error
+                                          ? err.message
+                                          : "Não foi possível alterar o papel.",
+                                      ),
+                                  },
+                                )
+                              }
+                              className="rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary"
+                            >
+                              <option value="student">Aluno</option>
+                              <option value="mentor">Mentor</option>
+                              <option value="super_admin">Admin Master</option>
+                            </select>
+                          )}
                         </td>
                         <td className="py-3 text-right">
                           {u.id === currentUserId ? (

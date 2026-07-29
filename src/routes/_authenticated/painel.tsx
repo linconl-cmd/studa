@@ -101,7 +101,7 @@ function Painel() {
       <main className="min-w-0 flex-1 px-4 py-6 pt-20 sm:px-8 lg:pt-8">
         <header className="mb-6">
           <h1 className="truncate font-display text-2xl font-bold sm:text-3xl">
-            {showAdminUsers ? "Gerenciar Usuários" : `Olá, ${nome.split(" ")[0]} 👋`}
+            {active === "Home" ? `Olá, ${nome.split(" ")[0]} 👋` : active}
           </h1>
           <p className="text-sm text-muted-foreground">
             {showAdminUsers
@@ -115,7 +115,7 @@ function Painel() {
         {showAdminUsers ? (
           <AdminUsers currentUserId={user.id} />
         ) : isMentor ? (
-          <MentorDashboard />
+          <MentorDashboard section={active} />
         ) : (
           <StudentDashboard userId={user.id} />
         )}

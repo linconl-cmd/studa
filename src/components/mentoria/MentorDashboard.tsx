@@ -1,11 +1,15 @@
 import { useMemo, useState } from "react";
-import { Users, Clock, CheckCircle2, XCircle, Plus, Loader2 } from "lucide-react";
+import { Users, Clock, CheckCircle2, XCircle, Plus, Loader2, Trash2 } from "lucide-react";
 import {
   useAllQuestionsMeta,
   useAnswers,
   useCreateQuestion,
   useCreateSubject,
   useCreateTopic,
+  useDeleteQuestion,
+  useDeleteSubject,
+  useDeleteTopic,
+  useQuestions,
   useStudents,
   useStudySessions,
   useSubjects,
@@ -17,7 +21,13 @@ function Card({ children }: { children: React.ReactNode }) {
   return <section className="rounded-3xl bg-card p-6 shadow-soft">{children}</section>;
 }
 
-export function MentorDashboard() {
+export function MentorDashboard({ section = "Home" }: { section?: string }) {
+  const showHome = section === "Home";
+  const showStudents = section === "Meus Alunos";
+  const showContent = section === "Gerenciador de Conteúdo";
+  const showQuiz = section === "Criação de Simulados";
+  const showProgress = section === "Análise de Progresso";
+
   const students = useStudents();
   const sessions = useStudySessions();
   const answers = useAnswers();
@@ -83,6 +93,7 @@ export function MentorDashboard() {
 
   return (
     <div className="flex flex-col gap-5">
+      {showHome && (
       <div className="grid gap-5 lg:grid-cols-3">
         <Card>
           <p className="font-display text-sm font-semibold text-muted-foreground">
@@ -134,7 +145,9 @@ export function MentorDashboard() {
           </p>
         </Card>
       </div>
+      )}
 
+      {(showHome || showProgress) && (
       <Card>
         <h2 className="font-display text-lg font-bold">Engajamento Semanal dos Alunos</h2>
         <p className="text-xs text-muted-foreground">
@@ -158,7 +171,9 @@ export function MentorDashboard() {
           ))}
         </div>
       </Card>
+      )}
 
+      {(showHome || showStudents) && (
       <Card>
         <h2 className="font-display text-lg font-bold">Meus Alunos</h2>
         <p className="text-xs text-muted-foreground">Desempenho individual consolidado</p>
@@ -196,7 +211,9 @@ export function MentorDashboard() {
           </table>
         </div>
       </Card>
+      )}
 
+      {(showHome || showProgress) && (
       <Card>
         <h2 className="font-display text-2xl font-bold">
           {subjects.data?.find((s) => s.id === currentSubject)?.title ?? "Matérias"}
@@ -272,8 +289,12 @@ export function MentorDashboard() {
           </table>
         </div>
       </Card>
+      )}
 
-      <ContentManager subjectId={currentSubject} topicById={topicById} />
+      {(showContent || showQuiz) && (
+        <ContentManager subjectId={currentSubject} topicById={topicById} />
+      )}
+      {(showContent || showQuiz) && <QuestionBank subjectId={currentSubject} />}
     </div>
   );
 }
@@ -456,6 +477,114 @@ function ContentManager({
             Criar Questão
           </button>
         </form>
+      </div>
+    </Card>
+  );
+}
+
+function QuestionBank({ subjectId }: { subjectId?: string }) {
+  const subjects = useSubjects();
+  const topics = useTopics();
+  const questions = useQuestions(subjectId);
+  const delSubject = useDeleteSubject();
+  const delTopic = useDeleteTopic();
+  const delQuestion = useDeleteQuestion();
+  const [error, setError] = useState<string | null>(null);
+
+  const topicTitle = new Map((topics.data ?? []).map((t) => [t.id, t.title]));
+  const fail = (e: unknown) =>
+    setError(e instanceof Error ? e.message : "Não foi possível concluir a exclusão.");
+
+  return (
+    <Card>
+      <h2 className="font-display text-lg font-bold">Banco de Conteúdo</h2>
+      <p className="text-xs text-muted-foreground">
+        Matérias, tópicos e questões cadastradas — remova o que não for mais usado
+      </p>
+
+      {error && (
+        <p className="mt-3 rounded-2xl bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          {error}
+        </p>
+      )}
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-2">
+        <div className="rounded-2xl bg-muted/50 p-4">
+          <p className="font-display text-sm font-bold">Matérias</p>
+          <ul className="mt-3 space-y-2">
+            {(subjects.data ?? []).map((s) => (
+              <li key={s.id} className="flex items-center justify-between gap-3 text-sm">
+                <span className="truncate">{s.title}</span>
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Excluir a matéria "${s.title}" e seus tópicos?`))
+                      delSubject.mutate(s.id, { onError: fail, onSuccess: () => setError(null) });
+                  }}
+                  className="inline-flex items-center gap-1 rounded-full border border-destructive/30 px-2.5 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> Excluir
+                </button>
+              </li>
+            ))}
+            {(subjects.data ?? []).length === 0 && (
+              <li className="text-sm text-muted-foreground">Nenhuma matéria cadastrada.</li>
+            )}
+          </ul>
+        </div>
+
+        <div className="rounded-2xl bg-muted/50 p-4">
+          <p className="font-display text-sm font-bold">Tópicos da matéria selecionada</p>
+          <ul className="mt-3 space-y-2">
+            {(topics.data ?? [])
+              .filter((t) => t.subject_id === subjectId)
+              .map((t) => (
+                <li key={t.id} className="flex items-center justify-between gap-3 text-sm">
+                  <span className="truncate">{t.title}</span>
+                  <button
+                    onClick={() => {
+                      if (window.confirm(`Excluir o tópico "${t.title}"?`))
+                        delTopic.mutate(t.id, { onError: fail, onSuccess: () => setError(null) });
+                    }}
+                    className="inline-flex items-center gap-1 rounded-full border border-destructive/30 px-2.5 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" /> Excluir
+                  </button>
+                </li>
+              ))}
+            {(topics.data ?? []).filter((t) => t.subject_id === subjectId).length === 0 && (
+              <li className="text-sm text-muted-foreground">Nenhum tópico nesta matéria.</li>
+            )}
+          </ul>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl bg-muted/50 p-4">
+        <p className="font-display text-sm font-bold">Questões da matéria selecionada</p>
+        <ul className="mt-3 space-y-2">
+          {(questions.data ?? []).map((q) => (
+            <li key={q.id} className="flex items-start justify-between gap-3 text-sm">
+              <span className="min-w-0">
+                <span className="block truncate font-medium">{q.statement}</span>
+                <span className="text-xs text-muted-foreground">
+                  {q.topic_id ? (topicTitle.get(q.topic_id) ?? "Sem tópico") : "Sem tópico"} ·{" "}
+                  {q.options.length} alternativas
+                </span>
+              </span>
+              <button
+                onClick={() => {
+                  if (window.confirm("Excluir esta questão?"))
+                    delQuestion.mutate(q.id, { onError: fail, onSuccess: () => setError(null) });
+                }}
+                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-destructive/30 px-2.5 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Excluir
+              </button>
+            </li>
+          ))}
+          {(questions.data ?? []).length === 0 && (
+            <li className="text-sm text-muted-foreground">Nenhuma questão cadastrada.</li>
+          )}
+        </ul>
       </div>
     </Card>
   );
