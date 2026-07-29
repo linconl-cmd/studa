@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { GraduationCap, Menu, LogOut, type LucideIcon } from "lucide-react";
+import { Menu, LogOut, type LucideIcon } from "lucide-react";
+import { BrandMark } from "@/components/BrandProvider";
 
 export type NavItem = { label: string; icon: LucideIcon };
 
@@ -42,15 +43,10 @@ export function Sidebar({
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="mb-6 flex min-w-0 items-center gap-3 px-1 pt-10 lg:pt-0">
-          <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground">
-            <GraduationCap className="h-6 w-6" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate font-display text-base font-bold leading-tight">Guerreiros</p>
-            <p className="truncate text-xs text-muted-foreground">Mentoria de Estudos</p>
-          </div>
+        <div className="mb-6 px-1 pt-10 lg:pt-0">
+          <BrandMark />
         </div>
+
 
         <nav className="flex flex-col gap-1">
           {items.map((item) => {

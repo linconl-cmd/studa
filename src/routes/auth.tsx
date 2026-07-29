@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { GraduationCap, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
+import { BrandMark } from "@/components/BrandProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { INVITE_CODE_STORAGE_KEY } from "@/hooks/useSession";
 import { lovable } from "@/integrations/lovable/index";
@@ -88,17 +90,13 @@ function AuthPage() {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-background px-4 py-10">
-      <div className="w-full max-w-md rounded-3xl bg-card p-8 shadow-soft">
-        <div className="flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-primary text-primary-foreground">
-            <GraduationCap className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="font-display text-xl font-bold">Guerreiros Mentoria</h1>
-            <p className="text-xs text-muted-foreground">Mentoria de estudos</p>
-          </div>
-        </div>
+    <main className="min-h-screen bg-background px-4 py-6">
+      <div className="mx-auto flex max-w-5xl justify-end">
+        <AppHeader />
+      </div>
+      <div className="mx-auto mt-6 w-full max-w-md rounded-3xl bg-card p-8 shadow-soft">
+        <BrandMark />
+
 
         <div className="mt-6 flex gap-2 rounded-full bg-muted p-1">
           {(["login", "signup"] as const).map((m) => (
