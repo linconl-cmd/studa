@@ -9,12 +9,16 @@ import {
   BookOpen,
   ListChecks,
   ShieldCheck,
+  Palette,
   Loader2,
 } from "lucide-react";
 import { Sidebar, type NavItem } from "@/components/mentoria/Sidebar";
 import { MentorDashboard } from "@/components/mentoria/MentorDashboard";
 import { StudentDashboard } from "@/components/mentoria/StudentDashboard";
 import { AdminUsers } from "@/components/mentoria/AdminUsers";
+import { BrandSettings } from "@/components/mentoria/BrandSettings";
+import { MyProfile } from "@/components/mentoria/MyProfile";
+import { AppHeader } from "@/components/AppHeader";
 import { isStaff, useProfile, useRole, useSession } from "@/hooks/useSession";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
