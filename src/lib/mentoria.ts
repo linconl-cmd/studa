@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { todayISO } from "@/lib/metrics";
 
 export type Subject = { id: string; title: string; description: string | null };
 export type Topic = {
@@ -73,6 +75,7 @@ export type ResultRow = {
   wrong_count: number;
   date: string;
   created_at: string;
+  activity_id: string | null;
 };
 
 export function useExerciseResults(userId?: string) {
@@ -81,7 +84,7 @@ export function useExerciseResults(userId?: string) {
     queryFn: async () => {
       let q = supabase
         .from("exercise_results")
-        .select("id, user_id, topic_id, correct_count, wrong_count, date, created_at")
+        .select("id, user_id, topic_id, correct_count, wrong_count, date, created_at, activity_id")
         .order("date", { ascending: false });
       if (userId) q = q.eq("user_id", userId);
       const { data, error } = await q;
@@ -100,6 +103,7 @@ export function useLogResult() {
       correct_count: number;
       wrong_count: number;
       date: string;
+      activity_id?: string | null;
     }) => {
       const { error } = await supabase.from("exercise_results").insert(input);
       if (error) throw error;
@@ -107,6 +111,7 @@ export function useLogResult() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["exercise_results"] });
       qc.invalidateQueries({ queryKey: ["ranking"] });
+      qc.invalidateQueries({ queryKey: ["study_sessions"] });
     },
   });
 }
@@ -278,4 +283,95 @@ export function useSetUserRole() {
       qc.invalidateQueries({ queryKey: ["students"] });
     },
   });
+}
+
+/* ---------------- atividades por tópico ---------------- */
+
+export type Activity = {
+  id: string;
+  topic_id: string;
+  title: string;
+  exercise_url: string | null;
+  due_date: string;
+  position: number;
+  created_at: string;
+};
+
+export function useActivities() {
+  return useQuery({
+    queryKey: ["activities"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("activities")
+        .select("id, topic_id, title, exercise_url, due_date, position, created_at")
+        .order("due_date", { ascending: false })
+        .order("position");
+      if (error) throw error;
+      return (data ?? []) as Activity[];
+    },
+  });
+}
+
+export function useCreateActivity() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      topic_id: string;
+      title: string;
+      exercise_url?: string | null;
+      due_date: string;
+    }) => {
+      const { error } = await supabase.from("activities").insert({
+        topic_id: input.topic_id,
+        title: input.title,
+        exercise_url: input.exercise_url?.trim() || null,
+        due_date: input.due_date,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["activities"] }),
+  });
+}
+
+export function useDeleteActivity() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("activities").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["activities"] }),
+  });
+}
+
+/**
+ * Registro automático de frequência: ao interagir com a plataforma,
+ * garante uma marcação de presença do dia (0 min, status "auto").
+ */
+export function useAutoAttendance(userId?: string, topicId?: string) {
+  const qc = useQueryClient();
+  const sessions = useStudySessions(userId);
+  const done = useRef(false);
+
+  useEffect(() => {
+    if (!userId || !topicId || sessions.isLoading || done.current) return;
+    const today = todayISO();
+    if ((sessions.data ?? []).some((s) => s.date === today)) {
+      done.current = true;
+      return;
+    }
+    done.current = true;
+    void supabase
+      .from("study_sessions")
+      .insert({
+        user_id: userId,
+        topic_id: topicId,
+        study_time_minutes: 0,
+        date: today,
+        status: "auto",
+      })
+      .then(({ error }) => {
+        if (!error) qc.invalidateQueries({ queryKey: ["study_sessions"] });
+      });
+  }, [userId, topicId, sessions.isLoading, sessions.data, qc]);
 }

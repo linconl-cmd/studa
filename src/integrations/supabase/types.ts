@@ -14,6 +14,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      activities: {
+        Row: {
+          created_at: string
+          due_date: string
+          exercise_url: string | null
+          id: string
+          position: number
+          title: string
+          topic_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          due_date?: string
+          exercise_url?: string | null
+          id?: string
+          position?: number
+          title: string
+          topic_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          due_date?: string
+          exercise_url?: string | null
+          id?: string
+          position?: number
+          title?: string
+          topic_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       branding_settings: {
         Row: {
           created_at: string
@@ -46,6 +87,7 @@ export type Database = {
       }
       exercise_results: {
         Row: {
+          activity_id: string | null
           correct_count: number
           created_at: string
           date: string
@@ -56,6 +98,7 @@ export type Database = {
           wrong_count: number
         }
         Insert: {
+          activity_id?: string | null
           correct_count?: number
           created_at?: string
           date?: string
@@ -66,6 +109,7 @@ export type Database = {
           wrong_count?: number
         }
         Update: {
+          activity_id?: string | null
           correct_count?: number
           created_at?: string
           date?: string
@@ -76,6 +120,13 @@ export type Database = {
           wrong_count?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "exercise_results_activity_id_fkey"
+            columns: ["activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "exercise_results_topic_id_fkey"
             columns: ["topic_id"]

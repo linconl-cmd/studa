@@ -64,7 +64,11 @@ export function BrandSettings() {
         <div className="mt-5 space-y-3">
           <label className="block text-xs font-semibold text-muted-foreground">
             Nome da plataforma / mentor
-            <input className={`${input} mt-1`} value={name} onChange={(e) => setName(e.target.value)} />
+            <input
+              className={`${input} mt-1`}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
           </label>
           <label className="block text-xs font-semibold text-muted-foreground">
             Subtítulo
@@ -133,11 +137,7 @@ export function BrandSettings() {
           {logoUrl ? (
             <img src={logoUrl} alt="Logotipo" className="h-11 w-11 rounded-2xl object-cover" />
           ) : (
-            <div
-              className="h-11 w-11 rounded-2xl"
-              style={{ backgroundColor: color }}
-              aria-hidden
-            />
+            <div className="h-11 w-11 rounded-2xl" style={{ backgroundColor: color }} aria-hidden />
           )}
           <div className="min-w-0">
             <p className="truncate font-display text-base font-bold">{name || "Sua marca"}</p>

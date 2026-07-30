@@ -134,7 +134,10 @@ export function StudentDetail({
             </span>
           </div>
           <div className="mt-3 h-2 w-full rounded-full bg-background">
-            <div className="h-2 rounded-full bg-primary" style={{ width: `${pct(ok, ok + err)}%` }} />
+            <div
+              className="h-2 rounded-full bg-primary"
+              style={{ width: `${pct(ok, ok + err)}%` }}
+            />
           </div>
         </div>
 

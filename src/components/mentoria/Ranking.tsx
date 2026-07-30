@@ -7,7 +7,13 @@ function Card({ children }: { children: React.ReactNode }) {
   return <section className="rounded-3xl bg-card p-6 shadow-soft">{children}</section>;
 }
 
-export function RankingPreviewCard({ userId }: { userId: string }) {
+export function RankingPreviewCard({
+  userId,
+  onOpenRanking,
+}: {
+  userId: string;
+  onOpenRanking?: () => void;
+}) {
   const ranking = useRanking();
   const rows = ranking.data ?? [];
   const index = rows.findIndex((r) => r.user_id === userId);
@@ -15,9 +21,7 @@ export function RankingPreviewCard({ userId }: { userId: string }) {
 
   return (
     <Card>
-      <p className="font-display text-sm font-semibold text-muted-foreground">
-        Prévia do Ranking
-      </p>
+      <p className="font-display text-sm font-semibold text-muted-foreground">Prévia do Ranking</p>
       {ranking.isLoading ? (
         <Loader2 className="mt-6 h-5 w-5 animate-spin text-primary" />
       ) : (
@@ -26,14 +30,22 @@ export function RankingPreviewCard({ userId }: { userId: string }) {
             <span className="font-display text-5xl font-bold leading-none">
               {index >= 0 ? `${index + 1}º` : "—"}
             </span>
-            <span className="pb-1 text-xs text-muted-foreground">
-              de {rows.length} alunos
-            </span>
+            <span className="pb-1 text-xs text-muted-foreground">de {rows.length} alunos</span>
           </div>
           <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1 text-xs font-semibold text-secondary-foreground">
             <Trophy className="h-3.5 w-3.5" />
-            {me ? `${me.correct_count} acertos · ${me.accuracy}% de acerto` : "Registre resultados para entrar no ranking"}
+            {me
+              ? `${me.correct_count} acertos · ${me.accuracy}% de acerto`
+              : "Registre resultados para entrar no ranking"}
           </p>
+          {onOpenRanking && (
+            <button
+              onClick={onOpenRanking}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+            >
+              <Trophy className="h-3.5 w-3.5" /> Ver ranking completo
+            </button>
+          )}
         </>
       )}
     </Card>
@@ -76,7 +88,11 @@ export function RankingScreen({ highlightUserId }: { highlightUserId?: string })
   }, [results.data, topicTitle]);
 
   const medal = (i: number) =>
-    i === 0 ? "bg-primary text-primary-foreground" : i < 3 ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground";
+    i === 0
+      ? "bg-primary text-primary-foreground"
+      : i < 3
+        ? "bg-secondary text-secondary-foreground"
+        : "bg-muted text-muted-foreground";
 
   return (
     <div className="flex flex-col gap-5">
@@ -141,8 +157,8 @@ export function RankingScreen({ highlightUserId }: { highlightUserId?: string })
                   )}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {r.correct_count} ✅ · {r.wrong_count} ❌ ·{" "}
-                  {Math.floor(r.study_minutes / 60)}h {r.study_minutes % 60}m
+                  {r.correct_count} ✅ · {r.wrong_count} ❌ · {Math.floor(r.study_minutes / 60)}h{" "}
+                  {r.study_minutes % 60}m
                 </p>
               </div>
               <span className="font-display text-lg font-bold">{r.accuracy}%</span>
@@ -162,7 +178,9 @@ export function RankingScreen({ highlightUserId }: { highlightUserId?: string })
             <p className="text-xs font-semibold text-muted-foreground">
               Taxa de aproveitamento da turma
             </p>
-            <p className="mt-2 font-display text-3xl font-bold">{pct(totalOk, totalOk + totalErr)}%</p>
+            <p className="mt-2 font-display text-3xl font-bold">
+              {pct(totalOk, totalOk + totalErr)}%
+            </p>
             <div className="mt-3 h-2 w-full rounded-full bg-background">
               <div
                 className="h-2 rounded-full bg-primary"
