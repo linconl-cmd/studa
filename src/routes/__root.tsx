@@ -85,6 +85,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Plataforma de mentoria de estudos." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Guerreiros Mentoria" },
+      { name: "twitter:description", content: "Plataforma de mentoria de estudos." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d40a129f-5901-463e-bdfb-ea7cd6e425d3/id-preview-3aa19e3a--ddeb18ec-65e9-4e6d-9cba-517f7abaa0be.lovable.app-1785350111221.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/d40a129f-5901-463e-bdfb-ea7cd6e425d3/id-preview-3aa19e3a--ddeb18ec-65e9-4e6d-9cba-517f7abaa0be.lovable.app-1785350111221.png" },
     ],
     links: [
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
