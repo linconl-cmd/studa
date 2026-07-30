@@ -100,9 +100,12 @@ function Painel() {
       ? "Personalize nome, logotipo e cores da sua plataforma"
       : showAdminUsers
         ? "Todos os cadastros da plataforma — alunos, mentores e administradores"
-        : isMentor
-          ? "Visão geral da mentoria — todos os alunos e matérias"
-          : "Seu painel pessoal de estudos";
+        : active === "Ranking"
+          ? "Classificação dos alunos e relatórios analíticos"
+          : isMentor
+            ? "Visão geral da mentoria — todos os alunos e matérias"
+            : "Seu painel pessoal de estudos";
+
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -135,7 +138,7 @@ function Painel() {
         ) : isMentor ? (
           <MentorDashboard section={active} />
         ) : (
-          <StudentDashboard userId={user.id} />
+          <StudentDashboard userId={user.id} section={active} />
         )}
       </main>
     </div>
