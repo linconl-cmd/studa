@@ -44,6 +44,47 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_results: {
+        Row: {
+          correct_count: number
+          created_at: string
+          date: string
+          id: string
+          topic_id: string
+          updated_at: string
+          user_id: string
+          wrong_count: number
+        }
+        Insert: {
+          correct_count?: number
+          created_at?: string
+          date?: string
+          id?: string
+          topic_id: string
+          updated_at?: string
+          user_id: string
+          wrong_count?: number
+        }
+        Update: {
+          correct_count?: number
+          created_at?: string
+          date?: string
+          id?: string
+          topic_id?: string
+          updated_at?: string
+          user_id?: string
+          wrong_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_results_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -67,89 +108,6 @@ export type Database = {
           id?: string
         }
         Relationships: []
-      }
-      questions: {
-        Row: {
-          correct_answer: string
-          created_at: string
-          created_by: string | null
-          id: string
-          options: Json
-          statement: string
-          subject_id: string
-          topic_id: string | null
-        }
-        Insert: {
-          correct_answer: string
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          options?: Json
-          statement: string
-          subject_id: string
-          topic_id?: string | null
-        }
-        Update: {
-          correct_answer?: string
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          options?: Json
-          statement?: string
-          subject_id?: string
-          topic_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "questions_subject_id_fkey"
-            columns: ["subject_id"]
-            isOneToOne: false
-            referencedRelation: "subjects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "questions_topic_id_fkey"
-            columns: ["topic_id"]
-            isOneToOne: false
-            referencedRelation: "topics"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      student_answers: {
-        Row: {
-          answered_at: string
-          id: string
-          is_correct: boolean
-          question_id: string
-          selected_answer: string
-          user_id: string
-        }
-        Insert: {
-          answered_at?: string
-          id?: string
-          is_correct?: boolean
-          question_id: string
-          selected_answer: string
-          user_id: string
-        }
-        Update: {
-          answered_at?: string
-          id?: string
-          is_correct?: boolean
-          question_id?: string
-          selected_answer?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "student_answers_question_id_fkey"
-            columns: ["question_id"]
-            isOneToOne: false
-            referencedRelation: "questions"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       study_sessions: {
         Row: {
@@ -213,18 +171,21 @@ export type Database = {
       topics: {
         Row: {
           created_at: string
+          exercise_url: string | null
           id: string
           subject_id: string
           title: string
         }
         Insert: {
           created_at?: string
+          exercise_url?: string | null
           id?: string
           subject_id: string
           title: string
         }
         Update: {
           created_at?: string
+          exercise_url?: string | null
           id?: string
           subject_id?: string
           title?: string
@@ -275,10 +236,6 @@ export type Database = {
           _user_id: string
         }
         Returns: Database["public"]["Enums"]["app_role"]
-      }
-      submit_answer: {
-        Args: { _question_id: string; _selected_answer: string }
-        Returns: boolean
       }
     }
     Enums: {
