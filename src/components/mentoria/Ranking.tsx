@@ -7,7 +7,13 @@ function Card({ children }: { children: React.ReactNode }) {
   return <section className="rounded-3xl bg-card p-6 shadow-soft">{children}</section>;
 }
 
-export function RankingPreviewCard({ userId }: { userId: string }) {
+export function RankingPreviewCard({
+  userId,
+  onOpenRanking,
+}: {
+  userId: string;
+  onOpenRanking?: () => void;
+}) {
   const ranking = useRanking();
   const rows = ranking.data ?? [];
   const index = rows.findIndex((r) => r.user_id === userId);
@@ -34,6 +40,14 @@ export function RankingPreviewCard({ userId }: { userId: string }) {
             <Trophy className="h-3.5 w-3.5" />
             {me ? `${me.correct_count} acertos · ${me.accuracy}% de acerto` : "Registre resultados para entrar no ranking"}
           </p>
+          {onOpenRanking && (
+            <button
+              onClick={onOpenRanking}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
+            >
+              <Trophy className="h-3.5 w-3.5" /> Ver ranking completo
+            </button>
+          )}
         </>
       )}
     </Card>

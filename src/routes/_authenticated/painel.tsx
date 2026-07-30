@@ -138,7 +138,7 @@ function Painel() {
         ) : isMentor ? (
           <MentorDashboard section={active} />
         ) : (
-          <StudentDashboard userId={user.id} section={active} />
+          <StudentDashboard userId={user.id} section={active} onSelectSection={setActive} />
         )}
       </main>
     </div>

@@ -8,9 +8,11 @@ import {
   useStudySessions,
   useSubjects,
   useTopics,
+  useAutoAttendance,
 } from "@/lib/mentoria";
 import { lastDays, pct, todayISO, formatDateBR, weekdayIndex } from "@/lib/metrics";
 import { RankingPreviewCard, RankingScreen } from "@/components/mentoria/Ranking";
+import { ActivityBoard } from "@/components/mentoria/ActivityBoard";
 
 function Card({ children }: { children: React.ReactNode }) {
   return <section className="rounded-3xl bg-card p-6 shadow-soft">{children}</section>;
@@ -22,14 +24,19 @@ const input =
 export function StudentDashboard({
   userId,
   section = "Home",
+  onSelectSection,
 }: {
   userId: string;
   section?: string;
+  onSelectSection?: (section: string) => void;
 }) {
   const subjects = useSubjects();
   const topics = useTopics();
   const sessions = useStudySessions(userId);
   const results = useExerciseResults(userId);
+
+  // frequência automática: qualquer acesso do aluno marca presença no dia
+  useAutoAttendance(userId, topics.data?.[0]?.id);
 
   const [subjectId, setSubjectId] = useState<string | undefined>();
   const currentSubject = subjectId ?? subjects.data?.[0]?.id;
@@ -122,7 +129,7 @@ export function StudentDashboard({
             </p>
           </Card>
 
-          <RankingPreviewCard userId={userId} />
+          <RankingPreviewCard userId={userId} onOpenRanking={onSelectSection ? () => onSelectSection("Ranking") : undefined} />
         </div>
       )}
 
@@ -197,59 +204,7 @@ export function StudentDashboard({
         </p>
       </Card>
 
-      <Card>
-        <div className="flex flex-wrap items-center gap-2">
-          {(subjects.data ?? []).map((s) => (
-            <button
-              key={s.id}
-              onClick={() => setSubjectId(s.id)}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                s.id === currentSubject
-                  ? "bg-secondary text-secondary-foreground"
-                  : "bg-muted text-muted-foreground hover:bg-secondary/60"
-              }`}
-            >
-              {s.title}
-            </button>
-          ))}
-        </div>
-
-        <h2 className="mt-5 font-display text-lg font-bold">Cadernos de Questões</h2>
-        <p className="text-xs text-muted-foreground">
-          Acesse o material externo indicado pelo mentor e depois registre seus resultados
-        </p>
-        <ul className="mt-4 space-y-2">
-          {rows.length === 0 && (
-            <li className="text-sm text-muted-foreground">Nenhum tópico disponível ainda.</li>
-          )}
-          {rows.map((r) => (
-            <li
-              key={r.id}
-              className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3"
-            >
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">{r.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {Math.floor(r.minutos / 60)}h {r.minutos % 60}m · {r.ok} ✅ · {r.err} ❌ ·{" "}
-                  {r.pct}%
-                </p>
-              </div>
-              {r.url ? (
-                <a
-                  href={r.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" /> Abrir caderno
-                </a>
-              ) : (
-                <span className="shrink-0 text-xs text-muted-foreground">Sem link</span>
-              )}
-            </li>
-          ))}
-        </ul>
-      </Card>
+      <ActivityBoard userId={userId} />
 
       <Card>
         <h2 className="inline-flex items-center gap-2 font-display text-lg font-bold">
