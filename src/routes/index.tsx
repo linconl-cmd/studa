@@ -76,7 +76,12 @@ function Index() {
             </div>
           ))}
         </div>
+
+        <footer className="mt-12 border-t border-border/60 pt-6">
+          <PoweredByFooter />
+        </footer>
       </div>
     </main>
+
   );
 }
