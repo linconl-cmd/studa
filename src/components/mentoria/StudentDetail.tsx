@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { X, Clock, CalendarCheck, TrendingUp } from "lucide-react";
 import { useExerciseResults, useStudySessions, useTopics } from "@/lib/mentoria";
-import { lastDays, pct } from "@/lib/metrics";
+import { lastDays, pct, formatDateBR } from "@/lib/metrics";
 
 export function StudentDetail({
   studentId,
@@ -105,7 +105,7 @@ export function StudentDetail({
           </div>
           <div className="rounded-2xl bg-muted/60 p-4">
             <p className="text-xs font-semibold text-muted-foreground">Último registro</p>
-            <p className="mt-1 font-display text-2xl font-bold">{ultimoAcesso ?? "—"}</p>
+            <p className="mt-1 font-display text-2xl font-bold">{formatDateBR(ultimoAcesso)}</p>
             <p className="mt-1 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
               <CalendarCheck className="h-3.5 w-3.5" /> histórico de acessos
             </p>

@@ -1,3 +1,4 @@
+import { formatDateBR } from "@/lib/metrics";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -33,7 +34,7 @@ function useManagedUsers() {
   });
 }
 
-const dateFmt = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short" });
+
 
 export function AdminUsers({ currentUserId }: { currentUserId: string }) {
   const users = useManagedUsers();
@@ -104,7 +105,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
                         <td className="py-3 font-medium">{u.full_name || "—"}</td>
                         <td className="py-3 text-muted-foreground">{u.email ?? "—"}</td>
                         <td className="py-3 text-muted-foreground">
-                          {dateFmt.format(new Date(u.created_at))}
+                          {formatDateBR(u.created_at)}
                         </td>
                         <td className="py-3">
                           {u.id === currentUserId ? (
