@@ -23,7 +23,7 @@ export const deleteUserAccount = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    await supabaseAdmin.from("student_answers").delete().eq("user_id", data.userId);
+    await supabaseAdmin.from("exercise_results").delete().eq("user_id", data.userId);
     await supabaseAdmin.from("study_sessions").delete().eq("user_id", data.userId);
     await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
     await supabaseAdmin.from("profiles").delete().eq("id", data.userId);
