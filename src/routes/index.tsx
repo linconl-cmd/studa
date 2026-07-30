@@ -5,6 +5,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useSession } from "@/hooks/useSession";
 import { AppHeader } from "@/components/AppHeader";
 import { BrandMark, useBrandingValue } from "@/components/BrandProvider";
+import { PoweredByFooter } from "@/components/PoweredBy";
+
 
 const title = "Guerreiros Mentoria — Plataforma de Mentoria de Estudos";
 const description =
@@ -76,7 +78,12 @@ function Index() {
             </div>
           ))}
         </div>
+
+        <footer className="mt-12 border-t border-border/60 pt-6">
+          <PoweredByFooter />
+        </footer>
       </div>
     </main>
+
   );
 }

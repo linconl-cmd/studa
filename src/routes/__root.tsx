@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BrandProvider } from "../components/BrandProvider";
+import { PoweredByBadge } from "../components/PoweredBy";
+
 
 function NotFoundComponent() {
   return (
@@ -133,7 +135,9 @@ function RootComponent() {
       <BrandProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        <PoweredByBadge />
       </BrandProvider>
+
     </QueryClientProvider>
   );
 }
