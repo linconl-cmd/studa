@@ -9,7 +9,7 @@ import {
   useSubjects,
   useTopics,
 } from "@/lib/mentoria";
-import { lastDays, pct, todayISO } from "@/lib/metrics";
+import { lastDays, pct, todayISO, formatDateBR } from "@/lib/metrics";
 import { RankingPreviewCard, RankingScreen } from "@/components/mentoria/Ranking";
 
 function Card({ children }: { children: React.ReactNode }) {
@@ -347,7 +347,7 @@ export function StudentDashboard({
                   {topicTitle.get(r.topic_id) ?? "Tópico removido"}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {r.date} · {r.correct_count} ✅ · {r.wrong_count} ❌
+                  {formatDateBR(r.date)} · {r.correct_count} ✅ · {r.wrong_count} ❌
                 </p>
               </div>
               <span className="font-display font-bold">
