@@ -34,8 +34,6 @@ function useManagedUsers() {
   });
 }
 
-
-
 export function AdminUsers({ currentUserId }: { currentUserId: string }) {
   const users = useManagedUsers();
   const qc = useQueryClient();
@@ -104,9 +102,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
                       <tr key={u.id} className="border-t border-border/70">
                         <td className="py-3 font-medium">{u.full_name || "—"}</td>
                         <td className="py-3 text-muted-foreground">{u.email ?? "—"}</td>
-                        <td className="py-3 text-muted-foreground">
-                          {formatDateBR(u.created_at)}
-                        </td>
+                        <td className="py-3 text-muted-foreground">{formatDateBR(u.created_at)}</td>
                         <td className="py-3">
                           {u.id === currentUserId ? (
                             <span className="text-xs text-muted-foreground">Admin Master</span>

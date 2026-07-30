@@ -47,7 +47,6 @@ export function Sidebar({
           <BrandMark />
         </div>
 
-
         <nav className="flex flex-col gap-1">
           {items.map((item) => {
             const isActive = active === item.label;

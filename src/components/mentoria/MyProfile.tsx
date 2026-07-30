@@ -51,7 +51,11 @@ export function MyProfile({ userId, roleLabel }: { userId: string; roleLabel: st
     >
       <div className="flex items-center gap-4">
         {avatarUrl ? (
-          <img src={avatarUrl} alt="Foto de perfil" className="h-16 w-16 rounded-full object-cover" />
+          <img
+            src={avatarUrl}
+            alt="Foto de perfil"
+            className="h-16 w-16 rounded-full object-cover"
+          />
         ) : (
           <div className="grid h-16 w-16 place-items-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
             {(fullName || "U").slice(0, 1).toUpperCase()}

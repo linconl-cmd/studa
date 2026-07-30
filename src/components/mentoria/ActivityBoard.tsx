@@ -121,9 +121,7 @@ export function ActivityBoard({ userId }: { userId: string }) {
   const resultByActivity = useMemo(
     () =>
       new Map(
-        (results.data ?? [])
-          .filter((r) => r.activity_id)
-          .map((r) => [r.activity_id as string, r]),
+        (results.data ?? []).filter((r) => r.activity_id).map((r) => [r.activity_id as string, r]),
       ),
     [results.data],
   );

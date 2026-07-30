@@ -129,7 +129,10 @@ export function StudentDashboard({
             </p>
           </Card>
 
-          <RankingPreviewCard userId={userId} onOpenRanking={onSelectSection ? () => onSelectSection("Ranking") : undefined} />
+          <RankingPreviewCard
+            userId={userId}
+            onOpenRanking={onSelectSection ? () => onSelectSection("Ranking") : undefined}
+          />
         </div>
       )}
 
@@ -211,8 +214,7 @@ export function StudentDashboard({
           <ListChecks className="h-5 w-5 text-primary" /> Registrar Resultados
         </h2>
         <p className="text-xs text-muted-foreground">
-          Informe quantas questões você acertou e errou — a porcentagem é calculada
-          automaticamente
+          Informe quantas questões você acertou e errou — a porcentagem é calculada automaticamente
         </p>
 
         <form
@@ -285,7 +287,10 @@ export function StudentDashboard({
         {parseInt(acertos || "0", 10) + parseInt(erros || "0", 10) > 0 && (
           <p className="mt-3 text-xs font-semibold text-primary">
             Aproveitamento previsto:{" "}
-            {pct(parseInt(acertos || "0", 10), parseInt(acertos || "0", 10) + parseInt(erros || "0", 10))}
+            {pct(
+              parseInt(acertos || "0", 10),
+              parseInt(acertos || "0", 10) + parseInt(erros || "0", 10),
+            )}
             %
           </p>
         )}

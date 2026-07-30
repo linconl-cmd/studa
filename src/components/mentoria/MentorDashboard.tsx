@@ -164,8 +164,8 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold">{r.nome}</p>
                     <p className="text-xs text-muted-foreground">
-                      {Math.floor(r.minutos / 60)}h {r.minutos % 60}m · {r.acertos} ✅ ·{" "}
-                      {r.erros} ❌
+                      {Math.floor(r.minutos / 60)}h {r.minutos % 60}m · {r.acertos} ✅ · {r.erros}{" "}
+                      ❌
                     </p>
                   </div>
                   <span className="font-display text-lg font-bold">{r.pct}%</span>

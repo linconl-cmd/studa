@@ -34,7 +34,6 @@ const studentNav: NavItem[] = [
   { label: "Ranking", icon: Trophy },
 ];
 
-
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
     meta: [
@@ -91,8 +90,7 @@ function Painel() {
     : studentNav;
   const showAdminUsers = isSuperAdmin && active === "Gerenciar Usuários";
   const showBranding = isMentor && active === "Configurações da Marca";
-  const showProfile =
-    active === "Meu Perfil" || (!isMentor && active === "Configurações da Marca");
+  const showProfile = active === "Meu Perfil" || (!isMentor && active === "Configurações da Marca");
 
   const subtitle = showProfile
     ? "Seus dados pessoais e foto de perfil"
@@ -105,7 +103,6 @@ function Painel() {
           : isMentor
             ? "Visão geral da mentoria — todos os alunos e matérias"
             : "Seu painel pessoal de estudos";
-
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -144,4 +141,3 @@ function Painel() {
     </div>
   );
 }
-
