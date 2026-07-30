@@ -9,7 +9,7 @@ import {
   useSubjects,
   useTopics,
 } from "@/lib/mentoria";
-import { lastDays, pct, todayISO, formatDateBR } from "@/lib/metrics";
+import { lastDays, pct, todayISO, formatDateBR, weekdayIndex } from "@/lib/metrics";
 import { RankingPreviewCard, RankingScreen } from "@/components/mentoria/Ranking";
 
 function Card({ children }: { children: React.ReactNode }) {
