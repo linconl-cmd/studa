@@ -230,6 +230,17 @@ export type Database = {
         Args: { _full_name?: string; _invite_code?: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      ranking_overview: {
+        Args: { _topic_id?: string }
+        Returns: {
+          accuracy: number
+          correct_count: number
+          full_name: string
+          study_minutes: number
+          user_id: string
+          wrong_count: number
+        }[]
+      }
       set_user_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
