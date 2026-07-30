@@ -10,12 +10,15 @@ export const deleteUserAccount = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    const { data: isSuperAdmin, error: roleError } = await supabase.rpc("has_role", {
-      _user_id: userId,
-      _role: "super_admin",
-    });
+    const { data: roleRow, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "super_admin")
+      .maybeSingle();
     if (roleError) throw roleError;
-    if (!isSuperAdmin) throw new Error("Apenas o admin master pode remover contas.");
+    if (!roleRow) throw new Error("Apenas o admin master pode remover contas.");
+
     if (data.userId === userId) throw new Error("Você não pode remover a própria conta.");
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
