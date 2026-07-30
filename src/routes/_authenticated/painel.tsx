@@ -4,10 +4,8 @@ import {
   House,
   Users,
   FolderOpen,
-  FilePlus2,
-  ChartNoAxesColumn,
+  Trophy,
   BookOpen,
-  ListChecks,
   ShieldCheck,
   Palette,
   Loader2,
@@ -27,16 +25,15 @@ const mentorNav: NavItem[] = [
   { label: "Home", icon: House },
   { label: "Meus Alunos", icon: Users },
   { label: "Gerenciador de Conteúdo", icon: FolderOpen },
-  { label: "Criação de Simulados", icon: FilePlus2 },
-  { label: "Análise de Progresso", icon: ChartNoAxesColumn },
+  { label: "Ranking", icon: Trophy },
 ];
 
 const studentNav: NavItem[] = [
   { label: "Home", icon: House },
   { label: "Meus Estudos", icon: BookOpen },
-  { label: "Simulados", icon: ListChecks },
-  { label: "Meu Progresso", icon: ChartNoAxesColumn },
+  { label: "Ranking", icon: Trophy },
 ];
+
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
@@ -103,9 +100,12 @@ function Painel() {
       ? "Personalize nome, logotipo e cores da sua plataforma"
       : showAdminUsers
         ? "Todos os cadastros da plataforma — alunos, mentores e administradores"
-        : isMentor
-          ? "Visão geral da mentoria — todos os alunos e matérias"
-          : "Seu painel pessoal de estudos";
+        : active === "Ranking"
+          ? "Classificação dos alunos e relatórios analíticos"
+          : isMentor
+            ? "Visão geral da mentoria — todos os alunos e matérias"
+            : "Seu painel pessoal de estudos";
+
 
   return (
     <div className="flex min-h-screen w-full bg-background">
@@ -138,7 +138,7 @@ function Painel() {
         ) : isMentor ? (
           <MentorDashboard section={active} />
         ) : (
-          <StudentDashboard userId={user.id} />
+          <StudentDashboard userId={user.id} section={active} />
         )}
       </main>
     </div>

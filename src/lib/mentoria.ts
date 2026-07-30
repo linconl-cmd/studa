@@ -2,13 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export type Subject = { id: string; title: string; description: string | null };
-export type Topic = { id: string; subject_id: string; title: string };
-export type QuestionForStudent = {
+export type Topic = {
   id: string;
   subject_id: string;
-  topic_id: string | null;
-  statement: string;
-  options: string[];
+  title: string;
+  exercise_url: string | null;
 };
 
 export function useSubjects() {
@@ -31,29 +29,10 @@ export function useTopics() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("topics")
-        .select("id, subject_id, title")
+        .select("id, subject_id, title, exercise_url")
         .order("created_at");
       if (error) throw error;
-      return data as Topic[];
-    },
-  });
-}
-
-export function useQuestions(subjectId?: string) {
-  return useQuery({
-    queryKey: ["questions", subjectId],
-    enabled: !!subjectId,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("questions")
-        .select("id, subject_id, topic_id, statement, options")
-        .eq("subject_id", subjectId!)
-        .order("created_at");
-      if (error) throw error;
-      return (data ?? []).map((q) => ({
-        ...q,
-        options: Array.isArray(q.options) ? (q.options as string[]) : [],
-      })) as QuestionForStudent[];
+      return (data ?? []) as Topic[];
     },
   });
 }
@@ -65,6 +44,7 @@ export type SessionRow = {
   study_time_minutes: number;
   date: string;
   status: string;
+  created_at: string;
 };
 
 export function useStudySessions(userId?: string) {
@@ -73,7 +53,7 @@ export function useStudySessions(userId?: string) {
     queryFn: async () => {
       let q = supabase
         .from("study_sessions")
-        .select("id, user_id, topic_id, study_time_minutes, date, status")
+        .select("id, user_id, topic_id, study_time_minutes, date, status, created_at")
         .order("date", { ascending: false });
       if (userId) q = q.eq("user_id", userId);
       const { data, error } = await q;
@@ -83,39 +63,88 @@ export function useStudySessions(userId?: string) {
   });
 }
 
-export type AnswerRow = {
+/* ---------------- resultados de exercícios externos ---------------- */
+
+export type ResultRow = {
   id: string;
   user_id: string;
-  question_id: string;
-  is_correct: boolean;
-  answered_at: string;
+  topic_id: string;
+  correct_count: number;
+  wrong_count: number;
+  date: string;
+  created_at: string;
 };
 
-export function useAnswers(userId?: string) {
+export function useExerciseResults(userId?: string) {
   return useQuery({
-    queryKey: ["student_answers", userId ?? "all"],
+    queryKey: ["exercise_results", userId ?? "all"],
     queryFn: async () => {
       let q = supabase
-        .from("student_answers")
-        .select("id, user_id, question_id, is_correct, answered_at")
-        .order("answered_at", { ascending: false });
+        .from("exercise_results")
+        .select("id, user_id, topic_id, correct_count, wrong_count, date, created_at")
+        .order("date", { ascending: false });
       if (userId) q = q.eq("user_id", userId);
       const { data, error } = await q;
       if (error) throw error;
-      return (data ?? []) as AnswerRow[];
+      return (data ?? []) as ResultRow[];
     },
   });
 }
 
-export function useAllQuestionsMeta() {
-  return useQuery({
-    queryKey: ["questions_meta"],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("questions")
-        .select("id, subject_id, topic_id");
+export function useLogResult() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      user_id: string;
+      topic_id: string;
+      correct_count: number;
+      wrong_count: number;
+      date: string;
+    }) => {
+      const { error } = await supabase.from("exercise_results").insert(input);
       if (error) throw error;
-      return (data ?? []) as { id: string; subject_id: string; topic_id: string | null }[];
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["exercise_results"] });
+      qc.invalidateQueries({ queryKey: ["ranking"] });
+    },
+  });
+}
+
+export function useDeleteResult() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("exercise_results").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["exercise_results"] });
+      qc.invalidateQueries({ queryKey: ["ranking"] });
+    },
+  });
+}
+
+/* ---------------- ranking ---------------- */
+
+export type RankingRow = {
+  user_id: string;
+  full_name: string;
+  correct_count: number;
+  wrong_count: number;
+  accuracy: number;
+  study_minutes: number;
+};
+
+export function useRanking(topicId?: string) {
+  return useQuery({
+    queryKey: ["ranking", topicId ?? "geral"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("ranking_overview", {
+        _topic_id: topicId ?? undefined,
+      });
+      if (error) throw error;
+      return (data ?? []) as RankingRow[];
     },
   });
 }
@@ -136,7 +165,7 @@ export function useStudents() {
   });
 }
 
-/* ---------------- mutations ---------------- */
+/* ---------------- mutations de conteúdo ---------------- */
 
 export function useCreateSubject() {
   const qc = useQueryClient();
@@ -155,31 +184,33 @@ export function useCreateSubject() {
 export function useCreateTopic() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: { subject_id: string; title: string }) => {
-      const { error } = await supabase.from("topics").insert(input);
+    mutationFn: async (input: {
+      subject_id: string;
+      title: string;
+      exercise_url?: string | null;
+    }) => {
+      const { error } = await supabase.from("topics").insert({
+        subject_id: input.subject_id,
+        title: input.title,
+        exercise_url: input.exercise_url ?? null,
+      });
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["topics"] }),
   });
 }
 
-export function useCreateQuestion() {
+export function useUpdateTopicUrl() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: {
-      subject_id: string;
-      topic_id: string | null;
-      statement: string;
-      options: string[];
-      correct_answer: string;
-    }) => {
-      const { error } = await supabase.from("questions").insert(input);
+    mutationFn: async (input: { id: string; exercise_url: string | null }) => {
+      const { error } = await supabase
+        .from("topics")
+        .update({ exercise_url: input.exercise_url })
+        .eq("id", input.id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["questions"] });
-      qc.invalidateQueries({ queryKey: ["questions_meta"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["topics"] }),
   });
 }
 
@@ -198,22 +229,10 @@ export function useLogStudy() {
       });
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["study_sessions"] }),
-  });
-}
-
-export function useSubmitAnswer() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (input: { question_id: string; selected_answer: string }) => {
-      const { data, error } = await supabase.rpc("submit_answer", {
-        _question_id: input.question_id,
-        _selected_answer: input.selected_answer,
-      });
-      if (error) throw error;
-      return data as boolean;
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["study_sessions"] });
+      qc.invalidateQueries({ queryKey: ["ranking"] });
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["student_answers"] }),
   });
 }
 
@@ -229,7 +248,6 @@ export function useDeleteSubject() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["subjects"] });
       qc.invalidateQueries({ queryKey: ["topics"] });
-      qc.invalidateQueries({ queryKey: ["questions_meta"] });
     },
   });
 }
@@ -241,24 +259,7 @@ export function useDeleteTopic() {
       const { error } = await supabase.from("topics").delete().eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["topics"] });
-      qc.invalidateQueries({ queryKey: ["questions_meta"] });
-    },
-  });
-}
-
-export function useDeleteQuestion() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("questions").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["questions"] });
-      qc.invalidateQueries({ queryKey: ["questions_meta"] });
-    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["topics"] }),
   });
 }
 

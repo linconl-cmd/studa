@@ -26,8 +26,9 @@ export const Route = createFileRoute("/")({
 
 const destaques = [
   { icon: Users, t: "Turmas e Alunos", d: "Acompanhe cada aluno e o engajamento da turma." },
-  { icon: ListChecks, t: "Simulados", d: "Crie questões e corrija automaticamente." },
-  { icon: LineChart, t: "Progresso", d: "Tempo de estudo, acertos e constância em tempo real." },
+  { icon: ListChecks, t: "Cadernos de Questões", d: "Links externos por tópico e registro de acertos e erros." },
+  { icon: LineChart, t: "Ranking e Relatórios", d: "Classificação dos alunos e análises de desempenho." },
+
 ];
 
 function Index() {
