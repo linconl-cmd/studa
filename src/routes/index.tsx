@@ -5,6 +5,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { useSession } from "@/hooks/useSession";
 import { AppHeader } from "@/components/AppHeader";
 import { BrandMark, useBrandingValue } from "@/components/BrandProvider";
+import { PoweredByFooter } from "@/components/PoweredBy";
+
 
 const title = "Guerreiros Mentoria — Plataforma de Mentoria de Estudos";
 const description =
