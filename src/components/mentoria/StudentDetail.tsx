@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { X, Clock, CalendarCheck, TrendingUp } from "lucide-react";
 import { useExerciseResults, useStudySessions, useTopics } from "@/lib/mentoria";
-import { lastDays, pct, formatDateBR } from "@/lib/metrics";
+import { lastDays, pct, formatDateBR, weekdayIndex } from "@/lib/metrics";
 
 export function StudentDetail({
   studentId,
