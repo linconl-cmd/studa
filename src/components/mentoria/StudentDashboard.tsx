@@ -177,10 +177,13 @@ export function StudentDashboard({
               {d}
             </span>
           ))}
+          {Array.from({ length: weekdayIndex(days[0]) }).map((_, i) => (
+            <span key={`pad-${i}`} aria-hidden />
+          ))}
           {days.map((d) => (
             <div key={d} className="grid place-items-center">
               <span
-                title={d}
+                title={formatDateBR(d)}
                 className={`h-6 w-6 rounded-full sm:h-7 sm:w-7 ${
                   studiedDays.has(d) ? "bg-success" : "bg-muted"
                 }`}
