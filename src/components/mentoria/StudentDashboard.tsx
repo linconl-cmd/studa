@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Clock, Loader2, CalendarCheck, ExternalLink, ListChecks, Trash2 } from "lucide-react";
+import { Clock, Loader2, CalendarCheck, ListChecks, Trash2 } from "lucide-react";
 import {
   useDeleteResult,
   useExerciseResults,
@@ -67,22 +67,6 @@ export function StudentDashboard({
     () => new Map((topics.data ?? []).map((t) => [t.id, t.title])),
     [topics.data],
   );
-
-  const rows = myTopics.map((t) => {
-    const ss = (sessions.data ?? []).filter((s) => s.topic_id === t.id);
-    const rr = (results.data ?? []).filter((r) => r.topic_id === t.id);
-    const tOk = rr.reduce((a, r) => a + r.correct_count, 0);
-    const tErr = rr.reduce((a, r) => a + r.wrong_count, 0);
-    return {
-      id: t.id,
-      title: t.title,
-      url: t.exercise_url,
-      minutos: ss.reduce((x, s) => x + s.study_time_minutes, 0),
-      ok: tOk,
-      err: tErr,
-      pct: pct(tOk, tOk + tErr),
-    };
-  });
 
   if (section === "Ranking") {
     return <RankingScreen highlightUserId={userId} />;
