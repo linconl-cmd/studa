@@ -4,10 +4,8 @@ import {
   House,
   Users,
   FolderOpen,
-  FilePlus2,
-  ChartNoAxesColumn,
+  Trophy,
   BookOpen,
-  ListChecks,
   ShieldCheck,
   Palette,
   Loader2,
@@ -27,16 +25,15 @@ const mentorNav: NavItem[] = [
   { label: "Home", icon: House },
   { label: "Meus Alunos", icon: Users },
   { label: "Gerenciador de Conteúdo", icon: FolderOpen },
-  { label: "Criação de Simulados", icon: FilePlus2 },
-  { label: "Análise de Progresso", icon: ChartNoAxesColumn },
+  { label: "Ranking", icon: Trophy },
 ];
 
 const studentNav: NavItem[] = [
   { label: "Home", icon: House },
   { label: "Meus Estudos", icon: BookOpen },
-  { label: "Simulados", icon: ListChecks },
-  { label: "Meu Progresso", icon: ChartNoAxesColumn },
+  { label: "Ranking", icon: Trophy },
 ];
+
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({
