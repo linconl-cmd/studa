@@ -135,7 +135,9 @@ function RootComponent() {
       <BrandProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet />
+        <PoweredByBadge />
       </BrandProvider>
+
     </QueryClientProvider>
   );
 }
