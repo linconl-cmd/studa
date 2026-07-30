@@ -9,7 +9,7 @@ import {
   useSubjects,
   useTopics,
 } from "@/lib/mentoria";
-import { lastDays, pct, todayISO, formatDateBR } from "@/lib/metrics";
+import { lastDays, pct, todayISO, formatDateBR, weekdayIndex } from "@/lib/metrics";
 import { RankingPreviewCard, RankingScreen } from "@/components/mentoria/Ranking";
 
 function Card({ children }: { children: React.ReactNode }) {
@@ -177,10 +177,13 @@ export function StudentDashboard({
               {d}
             </span>
           ))}
+          {Array.from({ length: weekdayIndex(days[0]) }).map((_, i) => (
+            <span key={`pad-${i}`} aria-hidden />
+          ))}
           {days.map((d) => (
             <div key={d} className="grid place-items-center">
               <span
-                title={d}
+                title={formatDateBR(d)}
                 className={`h-6 w-6 rounded-full sm:h-7 sm:w-7 ${
                   studiedDays.has(d) ? "bg-success" : "bg-muted"
                 }`}

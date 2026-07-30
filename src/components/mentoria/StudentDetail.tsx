@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { X, Clock, CalendarCheck, TrendingUp } from "lucide-react";
 import { useExerciseResults, useStudySessions, useTopics } from "@/lib/mentoria";
-import { lastDays, pct, formatDateBR } from "@/lib/metrics";
+import { lastDays, pct, formatDateBR, weekdayIndex } from "@/lib/metrics";
 
 export function StudentDetail({
   studentId,
@@ -113,10 +113,13 @@ export function StudentDetail({
         </div>
 
         <div className="mt-4 grid grid-cols-7 gap-2">
+          {Array.from({ length: weekdayIndex(days[0]) }).map((_, i) => (
+            <span key={`pad-${i}`} aria-hidden />
+          ))}
           {days.map((d) => (
             <span
               key={d}
-              title={d}
+              title={formatDateBR(d)}
               className={`h-5 rounded-full ${studied.has(d) ? "bg-success" : "bg-muted"}`}
             />
           ))}
