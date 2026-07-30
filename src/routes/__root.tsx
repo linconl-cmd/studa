@@ -12,6 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BrandProvider } from "../components/BrandProvider";
+import { PoweredByBadge } from "../components/PoweredBy";
+
 
 function NotFoundComponent() {
   return (
