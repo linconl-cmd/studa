@@ -451,9 +451,10 @@ function TopicLinks({ subjectId }: { subjectId?: string }) {
                     { onError: fail, onSuccess: () => setError(null) },
                   )
                 }
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                disabled={updTopic.isPending}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
-                Salvar link
+                {updTopic.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Salvar link
               </button>
             </div>
             <TopicActivities topicId={t.id} topicTitle={t.title} defaultUrl={t.exercise_url} />
@@ -472,7 +473,8 @@ function TopicLinks({ subjectId }: { subjectId?: string }) {
                   if (window.confirm(`Excluir a matéria "${s.title}" e seus tópicos?`))
                     delSubject.mutate(s.id, { onError: fail, onSuccess: () => setError(null) });
                 }}
-                className="inline-flex items-center gap-1 rounded-full border border-destructive/30 px-2.5 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10"
+                disabled={delSubject.isPending}
+                className="inline-flex items-center gap-1 rounded-full border border-destructive/30 px-2.5 py-1 text-xs font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-50"
               >
                 <Trash2 className="h-3.5 w-3.5" /> Excluir
               </button>
@@ -553,8 +555,11 @@ function TopicActivities({
           onChange={(e) => setDate(e.target.value)}
           aria-label={`Data da atividade em ${topicTitle}`}
         />
-        <button className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
-          Adicionar
+        <button
+          disabled={create.isPending}
+          className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+        >
+          {create.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Adicionar
         </button>
       </form>
       <ul className="mt-2 space-y-1">
@@ -565,7 +570,8 @@ function TopicActivities({
             </span>
             <button
               onClick={() => del.mutate(a.id)}
-              className="shrink-0 rounded-full border border-destructive/30 px-2 py-0.5 font-semibold text-destructive hover:bg-destructive/10"
+              disabled={del.isPending}
+              className="shrink-0 rounded-full border border-destructive/30 px-2 py-0.5 font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-50"
             >
               Excluir
             </button>
