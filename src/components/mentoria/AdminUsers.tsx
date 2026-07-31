@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, ShieldCheck, Trash2, UserRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { deleteUserAccount } from "@/lib/admin.functions";
-import { useSetUserRole } from "@/lib/mentoria";
+import { useMentors, useSetStudentTeacher, useSetUserRole } from "@/lib/mentoria";
 import type { AppRole } from "@/hooks/useSession";
 
 type ManagedUser = {
@@ -13,6 +13,7 @@ type ManagedUser = {
   full_name: string;
   email: string | null;
   created_at: string;
+  teacher_id: string | null;
   role: AppRole;
 };
 
@@ -21,7 +22,7 @@ function useManagedUsers() {
     queryKey: ["managed_users"],
     queryFn: async () => {
       const [{ data: profiles, error }, { data: roles, error: rolesError }] = await Promise.all([
-        supabase.from("profiles").select("id, full_name, email, created_at"),
+        supabase.from("profiles").select("id, full_name, email, created_at, teacher_id"),
         supabase.from("user_roles").select("user_id, role"),
       ]);
       if (error) throw error;
@@ -39,7 +40,12 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
   const qc = useQueryClient();
   const remove = useServerFn(deleteUserAccount);
   const setRole = useSetUserRole();
+  const mentors = useMentors();
+  const setTeacher = useSetStudentTeacher();
+  const [savingTeacher, setSavingTeacher] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const teacherName = new Map((mentors.data ?? []).map((m) => [m.id, m.full_name?.trim() || "Mentor"]));
 
   const del = useMutation({
     mutationFn: async (userId: string) => remove({ data: { userId } }),
