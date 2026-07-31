@@ -288,19 +288,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      bootstrap_current_user:
-        | {
-            Args: { _full_name?: string; _invite_code?: string }
-            Returns: Database["public"]["Enums"]["app_role"]
-          }
-        | {
-            Args: {
-              _full_name?: string
-              _invite_code?: string
-              _teacher_id?: string
-            }
-            Returns: Database["public"]["Enums"]["app_role"]
-          }
+      bootstrap_current_user: {
+        Args: {
+          _full_name?: string
+          _invite_code?: string
+          _teacher_id?: string
+        }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       list_mentors: {
         Args: never
         Returns: {
