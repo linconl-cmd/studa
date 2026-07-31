@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Clock, Loader2, CalendarCheck, ListChecks, Trash2 } from "lucide-react";
+import { Clock, Loader2, ListChecks, Trash2 } from "lucide-react";
 import {
   useDeleteResult,
   useExerciseResults,
@@ -10,7 +10,7 @@ import {
   useTopics,
   useAutoAttendance,
 } from "@/lib/mentoria";
-import { lastDays, pct, todayISO, formatDateBR, weekdayIndex } from "@/lib/metrics";
+import { pct, todayISO, formatDateBR } from "@/lib/metrics";
 import { RankingPreviewCard, RankingScreen } from "@/components/mentoria/Ranking";
 import { ActivityBoard } from "@/components/mentoria/ActivityBoard";
 
@@ -58,11 +58,6 @@ export function StudentDashboard({
   const totalMin = (sessions.data ?? []).reduce((a, s) => a + s.study_time_minutes, 0);
   const ok = (results.data ?? []).reduce((a, r) => a + r.correct_count, 0);
   const err = (results.data ?? []).reduce((a, r) => a + r.wrong_count, 0);
-  const days = lastDays(35);
-  const studiedDays = useMemo(
-    () => new Set((sessions.data ?? []).map((s) => s.date)),
-    [sessions.data],
-  );
   const topicTitle = useMemo(
     () => new Map((topics.data ?? []).map((t) => [t.id, t.title])),
     [topics.data],
@@ -165,31 +160,8 @@ export function StudentDashboard({
           </button>
         </form>
 
-        <div className="mt-6 grid grid-cols-7 gap-2 sm:gap-3">
-          {["D", "S", "T", "Q", "Q", "S", "S"].map((d, i) => (
-            <span key={i} className="text-center text-[11px] font-semibold text-muted-foreground">
-              {d}
-            </span>
-          ))}
-          {Array.from({ length: weekdayIndex(days[0]) }).map((_, i) => (
-            <span key={`pad-${i}`} aria-hidden />
-          ))}
-          {days.map((d) => (
-            <div key={d} className="grid place-items-center">
-              <span
-                title={formatDateBR(d)}
-                className={`h-6 w-6 rounded-full sm:h-7 sm:w-7 ${
-                  studiedDays.has(d) ? "bg-success" : "bg-muted"
-                }`}
-              />
-            </div>
-          ))}
-        </div>
-        <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-          <CalendarCheck className="h-3.5 w-3.5" />
-          {studiedDays.has(todayISO()) ? "Você estudou hoje!" : "Ainda não estudou hoje"}
-        </p>
       </Card>
+
 
       <ActivityBoard userId={userId} />
 
