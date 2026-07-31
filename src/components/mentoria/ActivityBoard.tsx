@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { CheckCircle2, Circle, ExternalLink, Loader2 } from "lucide-react";
 import {
+  parseCount,
   useActivities,
   useExerciseResults,
   useLogResult,
@@ -26,6 +27,7 @@ function ActivityCard({
   const logResult = useLogResult();
   const [acertos, setAcertos] = useState("");
   const [erros, setErros] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const done = Boolean(result);
 
   return (
