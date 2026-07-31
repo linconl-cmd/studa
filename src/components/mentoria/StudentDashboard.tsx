@@ -4,7 +4,6 @@ import {
   useDeleteResult,
   useExerciseResults,
   useLogResult,
-  useLogStudy,
   useStudySessions,
   useSubjects,
   useTopics,
@@ -41,13 +40,8 @@ export function StudentDashboard({
   const [subjectId, setSubjectId] = useState<string | undefined>();
   const currentSubject = subjectId ?? subjects.data?.[0]?.id;
 
-  const logStudy = useLogStudy();
   const logResult = useLogResult();
   const delResult = useDeleteResult();
-
-  const [topicId, setTopicId] = useState("");
-  const [minutes, setMinutes] = useState("30");
-  const [date, setDate] = useState(todayISO());
 
   const [resTopic, setResTopic] = useState("");
   const [acertos, setAcertos] = useState("");
@@ -114,54 +108,6 @@ export function StudentDashboard({
           />
         </div>
       )}
-
-      <Card>
-        <h2 className="font-display text-lg font-bold">Registrar Estudo</h2>
-        <p className="text-xs text-muted-foreground">Anote o tempo dedicado a cada tópico</p>
-        <form
-          className="mt-4 grid gap-3 sm:grid-cols-[2fr_1fr_1fr_auto]"
-          onSubmit={(e) => {
-            e.preventDefault();
-            const t = topicId || myTopics[0]?.id;
-            const m = parseInt(minutes, 10);
-            if (!t || !m || m <= 0) return;
-            logStudy.mutate({ user_id: userId, topic_id: t, study_time_minutes: m, date });
-          }}
-        >
-          <select
-            className={input}
-            value={topicId || myTopics[0]?.id || ""}
-            onChange={(e) => setTopicId(e.target.value)}
-            aria-label="Tópico estudado"
-          >
-            {myTopics.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.title}
-              </option>
-            ))}
-          </select>
-          <input
-            className={input}
-            type="number"
-            min={1}
-            value={minutes}
-            onChange={(e) => setMinutes(e.target.value)}
-            aria-label="Minutos estudados"
-          />
-          <input
-            className={input}
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            aria-label="Data do estudo"
-          />
-          <button className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-            {logStudy.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Salvar
-          </button>
-        </form>
-
-      </Card>
-
 
       <ActivityBoard userId={userId} />
 
