@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Clock, Loader2, ListChecks, Trash2 } from "lucide-react";
 import {
+  parseCount,
   useDeleteResult,
   useExerciseResults,
   useLogResult,
@@ -46,6 +47,7 @@ export function StudentDashboard({
   const [resTopic, setResTopic] = useState("");
   const [acertos, setAcertos] = useState("");
   const [erros, setErros] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
   const [resDate, setResDate] = useState(todayISO());
 
   const myTopics = (topics.data ?? []).filter((t) => t.subject_id === currentSubject);
