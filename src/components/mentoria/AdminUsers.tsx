@@ -93,13 +93,14 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
               <p className="text-sm text-muted-foreground">Nenhum usuário neste grupo.</p>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[520px] text-left text-sm">
+                <table className="w-full min-w-[720px] text-left text-sm">
                   <thead className="text-xs uppercase text-muted-foreground">
                     <tr>
                       <th className="pb-2">Nome</th>
                       <th className="pb-2">E-mail</th>
                       <th className="pb-2">Cadastro</th>
                       <th className="pb-2">Papel</th>
+                      <th className="pb-2">Professor</th>
                       <th className="pb-2 text-right">Ações</th>
                     </tr>
                   </thead>
@@ -130,7 +131,7 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
                                   },
                                 )
                               }
-                              className="rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary"
+                              className="rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary disabled:opacity-50"
                             >
                               <option value="student">Aluno</option>
                               <option value="mentor">Mentor</option>
@@ -138,6 +139,58 @@ export function AdminUsers({ currentUserId }: { currentUserId: string }) {
                             </select>
                           )}
                         </td>
+                        <td className="py-3">
+                          {u.role !== "student" ? (
+                            <span className="text-xs text-muted-foreground">—</span>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <select
+                                value={u.teacher_id ?? ""}
+                                disabled={savingTeacher === u.id || mentors.isLoading}
+                                onChange={(e) => {
+                                  const value = e.target.value || null;
+                                  setSavingTeacher(u.id);
+                                  setTeacher.mutate(
+                                    { studentId: u.id, teacherId: value },
+                                    {
+                                      onSuccess: () => setError(null),
+                                      onError: (err: unknown) =>
+                                        setError(
+                                          err instanceof Error
+                                            ? err.message
+                                            : "Não foi possível alterar o vínculo.",
+                                        ),
+                                      onSettled: () => setSavingTeacher(null),
+                                    },
+                                  );
+                                }}
+                                className="rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold outline-none focus:border-primary disabled:opacity-50"
+                                aria-label={`Professor de ${u.full_name || u.email || "aluno"}`}
+                              >
+                                <option value="">Sem Professor</option>
+                                {(mentors.data ?? []).map((m) => (
+                                  <option key={m.id} value={m.id}>
+                                    {m.full_name?.trim() || "Mentor"}
+                                  </option>
+                                ))}
+                              </select>
+                              {savingTeacher === u.id && (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                              )}
+                              {!u.teacher_id && savingTeacher !== u.id && (
+                                <span className="text-xs text-muted-foreground">
+                                  Sem Professor
+                                </span>
+                              )}
+                              {u.teacher_id && savingTeacher !== u.id && (
+                                <span className="truncate text-xs text-muted-foreground">
+                                  {teacherName.get(u.teacher_id) ?? "Professor"}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </td>
+
                         <td className="py-3 text-right">
                           {u.id === currentUserId ? (
                             <span className="text-xs text-muted-foreground">Você</span>
