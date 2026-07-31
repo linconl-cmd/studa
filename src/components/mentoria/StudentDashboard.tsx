@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Clock, Loader2, CalendarCheck, ListChecks, Trash2 } from "lucide-react";
+import { Clock, Loader2, ListChecks, Trash2 } from "lucide-react";
 import {
   useDeleteResult,
   useExerciseResults,
