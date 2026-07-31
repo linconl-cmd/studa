@@ -159,7 +159,7 @@ export function useStudents() {
     queryKey: ["students"],
     queryFn: async () => {
       const [{ data: profiles, error }, { data: roles, error: rolesError }] = await Promise.all([
-        supabase.from("profiles").select("id, full_name, email, created_at"),
+        supabase.from("profiles").select("id, full_name, email, created_at, teacher_id"),
         supabase.from("user_roles").select("user_id, role"),
       ]);
       if (error) throw error;
@@ -397,7 +397,7 @@ export function useSetStudentTeacher() {
     mutationFn: async (input: { studentId: string; teacherId: string | null }) => {
       const { error } = await supabase.rpc("set_student_teacher", {
         _student_id: input.studentId,
-        _teacher_id: input.teacherId,
+        _teacher_id: input.teacherId as unknown as string,
       });
       if (error) throw error;
     },
