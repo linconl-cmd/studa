@@ -143,6 +143,7 @@ export type Database = {
           email: string | null
           full_name: string
           id: string
+          teacher_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -150,6 +151,7 @@ export type Database = {
           email?: string | null
           full_name?: string
           id: string
+          teacher_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -157,8 +159,17 @@ export type Database = {
           email?: string | null
           full_name?: string
           id?: string
+          teacher_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       study_sessions: {
         Row: {
@@ -277,9 +288,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      bootstrap_current_user: {
-        Args: { _full_name?: string; _invite_code?: string }
-        Returns: Database["public"]["Enums"]["app_role"]
+      bootstrap_current_user:
+        | {
+            Args: { _full_name?: string; _invite_code?: string }
+            Returns: Database["public"]["Enums"]["app_role"]
+          }
+        | {
+            Args: {
+              _full_name?: string
+              _invite_code?: string
+              _teacher_id?: string
+            }
+            Returns: Database["public"]["Enums"]["app_role"]
+          }
+      list_mentors: {
+        Args: never
+        Returns: {
+          full_name: string
+          id: string
+        }[]
       }
       ranking_overview: {
         Args: { _topic_id?: string }
@@ -291,6 +318,10 @@ export type Database = {
           user_id: string
           wrong_count: number
         }[]
+      }
+      set_student_teacher: {
+        Args: { _student_id: string; _teacher_id: string }
+        Returns: string
       }
       set_user_role: {
         Args: {

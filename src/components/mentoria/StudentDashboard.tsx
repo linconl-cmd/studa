@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Clock, Loader2, ListChecks, Trash2 } from "lucide-react";
 import {
+  parseCount,
   useDeleteResult,
   useExerciseResults,
   useLogResult,
@@ -46,6 +47,7 @@ export function StudentDashboard({
   const [resTopic, setResTopic] = useState("");
   const [acertos, setAcertos] = useState("");
   const [erros, setErros] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
   const [resDate, setResDate] = useState(todayISO());
 
   const myTopics = (topics.data ?? []).filter((t) => t.subject_id === currentSubject);
@@ -124,9 +126,21 @@ export function StudentDashboard({
           onSubmit={(e) => {
             e.preventDefault();
             const t = resTopic || myTopics[0]?.id;
-            const a = parseInt(acertos || "0", 10);
-            const b = parseInt(erros || "0", 10);
-            if (!t || a < 0 || b < 0 || a + b === 0) return;
+            const a = parseCount(acertos);
+            const b = parseCount(erros);
+            if (!t) {
+              setFormError("Selecione um tópico.");
+              return;
+            }
+            if (a === null || b === null) {
+              setFormError("Informe apenas números inteiros maiores ou iguais a zero.");
+              return;
+            }
+            if (a + b === 0) {
+              setFormError("Registre ao menos uma questão resolvida.");
+              return;
+            }
+            setFormError(null);
             logResult.mutate(
               {
                 user_id: userId,
@@ -140,6 +154,10 @@ export function StudentDashboard({
                   setAcertos("");
                   setErros("");
                 },
+                onError: (err) =>
+                  setFormError(
+                    err instanceof Error ? err.message : "Não foi possível registrar.",
+                  ),
               },
             );
           }}
@@ -160,18 +178,22 @@ export function StudentDashboard({
             className={input}
             type="number"
             min={0}
+            step={1}
+            inputMode="numeric"
             placeholder="Acertos"
             value={acertos}
-            onChange={(e) => setAcertos(e.target.value)}
+            onChange={(e) => setAcertos(e.target.value.replace(/[^\d]/g, ""))}
             aria-label="Quantidade de Acertos"
           />
           <input
             className={input}
             type="number"
             min={0}
+            step={1}
+            inputMode="numeric"
             placeholder="Erros"
             value={erros}
-            onChange={(e) => setErros(e.target.value)}
+            onChange={(e) => setErros(e.target.value.replace(/[^\d]/g, ""))}
             aria-label="Quantidade de Erros"
           />
           <input
@@ -181,9 +203,13 @@ export function StudentDashboard({
             onChange={(e) => setResDate(e.target.value)}
             aria-label="Data do resultado"
           />
-          <button className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
+          <button
+            disabled={logResult.isPending}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+          >
             {logResult.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Registrar
           </button>
+          {formError && <p className="text-xs text-destructive sm:col-span-5">{formError}</p>}
         </form>
 
         {parseInt(acertos || "0", 10) + parseInt(erros || "0", 10) > 0 && (

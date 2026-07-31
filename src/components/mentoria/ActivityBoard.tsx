@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { CheckCircle2, Circle, ExternalLink, Loader2 } from "lucide-react";
 import {
+  parseCount,
   useActivities,
   useExerciseResults,
   useLogResult,
@@ -26,6 +27,7 @@ function ActivityCard({
   const logResult = useLogResult();
   const [acertos, setAcertos] = useState("");
   const [erros, setErros] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const done = Boolean(result);
 
   return (
@@ -68,9 +70,17 @@ function ActivityCard({
           className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]"
           onSubmit={(e) => {
             e.preventDefault();
-            const a = parseInt(acertos || "0", 10);
-            const b = parseInt(erros || "0", 10);
-            if (a < 0 || b < 0 || a + b === 0) return;
+            const a = parseCount(acertos);
+            const b = parseCount(erros);
+            if (a === null || b === null) {
+              setError("Informe apenas números inteiros maiores ou iguais a zero.");
+              return;
+            }
+            if (a + b === 0) {
+              setError("Registre ao menos uma questão resolvida.");
+              return;
+            }
+            setError(null);
             logResult.mutate({
               user_id: userId,
               topic_id: activity.topic_id,
@@ -85,23 +95,38 @@ function ActivityCard({
             className={input}
             type="number"
             min={0}
+            step={1}
+            inputMode="numeric"
             placeholder="Quantidade de Acertos"
             value={acertos}
-            onChange={(e) => setAcertos(e.target.value)}
+            onChange={(e) => setAcertos(e.target.value.replace(/[^\d]/g, ""))}
             aria-label={`Quantidade de Acertos em ${activity.title}`}
           />
           <input
             className={input}
             type="number"
             min={0}
+            step={1}
+            inputMode="numeric"
             placeholder="Quantidade de Erros"
             value={erros}
-            onChange={(e) => setErros(e.target.value)}
+            onChange={(e) => setErros(e.target.value.replace(/[^\d]/g, ""))}
             aria-label={`Quantidade de Erros em ${activity.title}`}
           />
-          <button className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+          <button
+            disabled={logResult.isPending}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
+          >
             {logResult.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Concluir
           </button>
+          {(error || logResult.isError) && (
+            <p className="text-xs text-destructive sm:col-span-3">
+              {error ??
+                (logResult.error instanceof Error
+                  ? logResult.error.message
+                  : "Não foi possível registrar.")}
+            </p>
+          )}
         </form>
       )}
     </li>

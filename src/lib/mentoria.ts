@@ -159,7 +159,7 @@ export function useStudents() {
     queryKey: ["students"],
     queryFn: async () => {
       const [{ data: profiles, error }, { data: roles, error: rolesError }] = await Promise.all([
-        supabase.from("profiles").select("id, full_name, email, created_at"),
+        supabase.from("profiles").select("id, full_name, email, created_at, teacher_id"),
         supabase.from("user_roles").select("user_id, role"),
       ]);
       if (error) throw error;
@@ -374,4 +374,45 @@ export function useAutoAttendance(userId?: string, topicId?: string) {
         if (!error) qc.invalidateQueries({ queryKey: ["study_sessions"] });
       });
   }, [userId, topicId, sessions.isLoading, sessions.data, qc]);
+}
+
+/* ---------------- vínculo aluno x professor ---------------- */
+
+export type Mentor = { id: string; full_name: string };
+
+export function useMentors() {
+  return useQuery({
+    queryKey: ["mentors"],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("list_mentors");
+      if (error) throw error;
+      return (data ?? []) as Mentor[];
+    },
+  });
+}
+
+export function useSetStudentTeacher() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: { studentId: string; teacherId: string | null }) => {
+      const { error } = await supabase.rpc("set_student_teacher", {
+        _student_id: input.studentId,
+        _teacher_id: input.teacherId as unknown as string,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["managed_users"] });
+      qc.invalidateQueries({ queryKey: ["students"] });
+      qc.invalidateQueries({ queryKey: ["ranking"] });
+    },
+  });
+}
+
+/** Validação estrita: inteiro >= 0. Retorna null quando inválido. */
+export function parseCount(value: string): number | null {
+  const raw = value.trim();
+  if (!/^\d+$/.test(raw)) return null;
+  const n = Number(raw);
+  return Number.isSafeInteger(n) && n >= 0 ? n : null;
 }

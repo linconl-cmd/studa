@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 export type AppRole = "super_admin" | "mentor" | "student";
 
 export const INVITE_CODE_STORAGE_KEY = "guerreiros:invite-code";
+export const TEACHER_STORAGE_KEY = "guerreiros:teacher-id";
 
 export function useSession() {
   const [user, setUser] = useState<User | null>(null);
@@ -37,20 +38,23 @@ export function useRole(userId: string | undefined) {
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
     queryFn: async () => {
-      const inviteCode =
+      const read = (key: string) =>
         typeof window !== "undefined"
-          ? (localStorage.getItem(INVITE_CODE_STORAGE_KEY) ??
-             sessionStorage.getItem(INVITE_CODE_STORAGE_KEY) ??
-             "")
+          ? (localStorage.getItem(key) ?? sessionStorage.getItem(key) ?? "")
           : "";
+      const inviteCode = read(INVITE_CODE_STORAGE_KEY);
+      const teacherId = read(TEACHER_STORAGE_KEY);
       const { data, error } = await supabase.rpc("bootstrap_current_user", {
         _full_name: "",
         _invite_code: inviteCode,
+        ...(teacherId ? { _teacher_id: teacherId } : {}),
       });
       if (error) throw error;
       if (typeof window !== "undefined") {
-        localStorage.removeItem(INVITE_CODE_STORAGE_KEY);
-        sessionStorage.removeItem(INVITE_CODE_STORAGE_KEY);
+        for (const key of [INVITE_CODE_STORAGE_KEY, TEACHER_STORAGE_KEY]) {
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        }
       }
       return data as AppRole;
     },
