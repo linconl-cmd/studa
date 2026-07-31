@@ -165,31 +165,8 @@ export function StudentDashboard({
           </button>
         </form>
 
-        <div className="mt-6 grid grid-cols-7 gap-2 sm:gap-3">
-          {["D", "S", "T", "Q", "Q", "S", "S"].map((d, i) => (
-            <span key={i} className="text-center text-[11px] font-semibold text-muted-foreground">
-              {d}
-            </span>
-          ))}
-          {Array.from({ length: weekdayIndex(days[0]) }).map((_, i) => (
-            <span key={`pad-${i}`} aria-hidden />
-          ))}
-          {days.map((d) => (
-            <div key={d} className="grid place-items-center">
-              <span
-                title={formatDateBR(d)}
-                className={`h-6 w-6 rounded-full sm:h-7 sm:w-7 ${
-                  studiedDays.has(d) ? "bg-success" : "bg-muted"
-                }`}
-              />
-            </div>
-          ))}
-        </div>
-        <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
-          <CalendarCheck className="h-3.5 w-3.5" />
-          {studiedDays.has(todayISO()) ? "Você estudou hoje!" : "Ainda não estudou hoje"}
-        </p>
       </Card>
+
 
       <ActivityBoard userId={userId} />
 
