@@ -10,7 +10,7 @@ import {
   useTopics,
   useAutoAttendance,
 } from "@/lib/mentoria";
-import { lastDays, pct, todayISO, formatDateBR, weekdayIndex } from "@/lib/metrics";
+import { pct, todayISO, formatDateBR } from "@/lib/metrics";
 import { RankingPreviewCard, RankingScreen } from "@/components/mentoria/Ranking";
 import { ActivityBoard } from "@/components/mentoria/ActivityBoard";
 
