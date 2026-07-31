@@ -4,7 +4,8 @@ import { Loader2 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { BrandMark } from "@/components/BrandProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { INVITE_CODE_STORAGE_KEY } from "@/hooks/useSession";
+import { INVITE_CODE_STORAGE_KEY, TEACHER_STORAGE_KEY } from "@/hooks/useSession";
+import { useMentors } from "@/lib/mentoria";
 import { lovable } from "@/integrations/lovable/index";
 
 const title = "Entrar — Guerreiros Mentoria";
@@ -30,9 +31,14 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [inviteCode, setInviteCode] = useState("");
+  const [teacherId, setTeacherId] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const mentors = useMentors();
+
+  const isMentorSignup = inviteCode.trim().toLowerCase() === "guerr4";
+  const needsTeacher = mode === "signup" && !isMentorSignup && (mentors.data ?? []).length > 0;
 
   const input =
     "w-full rounded-xl border border-border bg-muted/50 px-4 py-3 text-sm outline-none focus:border-primary";
@@ -46,13 +52,20 @@ function AuthPage() {
       if (mode === "signup") {
         const fullName = name.trim();
         if (!fullName) throw new Error("Informe seu nome completo.");
+        if (needsTeacher && !teacherId)
+          throw new Error("Selecione o professor/mentor responsável pelos seus estudos.");
         localStorage.setItem(INVITE_CODE_STORAGE_KEY, inviteCode.trim());
+        if (needsTeacher && teacherId) localStorage.setItem(TEACHER_STORAGE_KEY, teacherId);
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { full_name: fullName, invite_code: inviteCode.trim() },
+            data: {
+              full_name: fullName,
+              invite_code: inviteCode.trim(),
+              ...(needsTeacher && teacherId ? { teacher_id: teacherId } : {}),
+            },
           },
         });
         if (error) throw error;
@@ -63,8 +76,10 @@ function AuthPage() {
         await supabase.rpc("bootstrap_current_user", {
           _full_name: fullName,
           _invite_code: inviteCode.trim(),
+          ...(needsTeacher && teacherId ? { _teacher_id: teacherId } : {}),
         });
         localStorage.removeItem(INVITE_CODE_STORAGE_KEY);
+        localStorage.removeItem(TEACHER_STORAGE_KEY);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
