@@ -58,11 +58,6 @@ export function StudentDashboard({
   const totalMin = (sessions.data ?? []).reduce((a, s) => a + s.study_time_minutes, 0);
   const ok = (results.data ?? []).reduce((a, r) => a + r.correct_count, 0);
   const err = (results.data ?? []).reduce((a, r) => a + r.wrong_count, 0);
-  const days = lastDays(35);
-  const studiedDays = useMemo(
-    () => new Set((sessions.data ?? []).map((s) => s.date)),
-    [sessions.data],
-  );
   const topicTitle = useMemo(
     () => new Map((topics.data ?? []).map((t) => [t.id, t.title])),
     [topics.data],
