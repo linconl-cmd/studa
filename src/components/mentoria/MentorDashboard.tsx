@@ -451,10 +451,10 @@ function TopicLinks({ subjectId }: { subjectId?: string }) {
                     { onError: fail, onSuccess: () => setError(null) },
                   )
                 }
-                disabled={updTopic.isPending}
+                disabled={updateUrl.isPending}
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
               >
-                {updTopic.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Salvar link
+                {updateUrl.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Salvar link
               </button>
             </div>
             <TopicActivities topicId={t.id} topicTitle={t.title} defaultUrl={t.exercise_url} />
