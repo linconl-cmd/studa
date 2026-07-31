@@ -4,7 +4,6 @@ import {
   useDeleteResult,
   useExerciseResults,
   useLogResult,
-  useLogStudy,
   useStudySessions,
   useSubjects,
   useTopics,
@@ -41,13 +40,8 @@ export function StudentDashboard({
   const [subjectId, setSubjectId] = useState<string | undefined>();
   const currentSubject = subjectId ?? subjects.data?.[0]?.id;
 
-  const logStudy = useLogStudy();
   const logResult = useLogResult();
   const delResult = useDeleteResult();
-
-  const [topicId, setTopicId] = useState("");
-  const [minutes, setMinutes] = useState("30");
-  const [date, setDate] = useState(todayISO());
 
   const [resTopic, setResTopic] = useState("");
   const [acertos, setAcertos] = useState("");
