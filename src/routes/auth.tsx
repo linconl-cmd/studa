@@ -147,6 +147,27 @@ function AuthPage() {
               onChange={(e) => setInviteCode(e.target.value)}
             />
           )}
+          {needsTeacher && (
+            <div>
+              <select
+                className={input}
+                required
+                value={teacherId}
+                onChange={(e) => setTeacherId(e.target.value)}
+                aria-label="Selecione seu Professor/Mentor"
+              >
+                <option value="">Selecione seu Professor/Mentor</option>
+                {(mentors.data ?? []).map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.full_name?.trim() || "Mentor"}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 px-1 text-xs text-muted-foreground">
+                Obrigatório: sua turma e seu ranking seguem o professor escolhido.
+              </p>
+            </div>
+          )}
           <input
             className={input}
             type="email"
