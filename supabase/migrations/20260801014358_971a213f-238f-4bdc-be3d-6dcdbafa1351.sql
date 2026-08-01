@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION private.teacher_of(uuid) TO authenticated, service_role;
