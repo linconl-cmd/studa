@@ -1,14 +1,19 @@
 import { useMemo, useState } from "react";
-import { Eye, Link2, Loader2, Trash2, X } from "lucide-react";
+import { ChevronDown, Eye, Link2, Loader2, Trash2, Users, X } from "lucide-react";
 import {
   useActivities,
   useCreateActivity,
   useDeleteActivity,
+  useExerciseResults,
+  useStudents,
   useSubjects,
   useTopics,
   useUpdateTopicUrl,
   type Activity,
+  type ResultRow,
 } from "@/lib/mentoria";
+import { useRole, useSession } from "@/hooks/useSession";
+
 import { formatDateBR, todayISO } from "@/lib/metrics";
 import { ActivityCard } from "@/components/mentoria/ActivityBoard";
 
