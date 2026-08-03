@@ -16,6 +16,7 @@ import { MentorDashboard } from "@/components/mentoria/MentorDashboard";
 import { StudentDashboard } from "@/components/mentoria/StudentDashboard";
 import { AdminUsers } from "@/components/mentoria/AdminUsers";
 import { BrandSettings } from "@/components/mentoria/BrandSettings";
+import { useBranding } from "@/lib/branding";
 import { MyProfile } from "@/components/mentoria/MyProfile";
 import { AppHeader } from "@/components/AppHeader";
 import { isStaff, useProfile, useRole, useSession } from "@/hooks/useSession";
@@ -66,6 +67,8 @@ function Painel() {
 
   const isSuperAdmin = role.data === "super_admin";
   const isMentor = isStaff(role.data);
+  const branding = useBranding();
+  const canEditBranding = isSuperAdmin || (branding.data?.allow_mentor_branding ?? false);
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -87,7 +90,9 @@ function Painel() {
   const nav: NavItem[] = isMentor
     ? [
         ...mentorNav,
-        { label: "Configurações da Marca", icon: Palette },
+        ...(isSuperAdmin || canEditBranding
+          ? [{ label: "Configurações da Marca", icon: Palette }]
+          : []),
         ...(isSuperAdmin ? [{ label: "Gerenciar Usuários", icon: ShieldCheck }] : []),
       ]
     : studentNav;
@@ -140,7 +145,7 @@ function Painel() {
         {showProfile ? (
           <MyProfile userId={user.id} roleLabel={roleLabel} />
         ) : showBranding ? (
-          <BrandSettings />
+          <BrandSettings isSuperAdmin={isSuperAdmin} canEdit={canEditBranding} />
         ) : showAdminUsers ? (
           <AdminUsers currentUserId={user.id} />
         ) : isMentor ? (
