@@ -194,11 +194,13 @@ export function useCreateTopic() {
       subject_id: string;
       title: string;
       exercise_url?: string | null;
+      parent_topic_id?: string | null;
     }) => {
       const { error } = await supabase.from("topics").insert({
         subject_id: input.subject_id,
         title: input.title,
         exercise_url: input.exercise_url ?? null,
+        parent_topic_id: input.parent_topic_id ?? null,
       });
       if (error) throw error;
     },
