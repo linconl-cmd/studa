@@ -103,9 +103,17 @@ function Painel() {
         ? "Todos os cadastros da plataforma — alunos, mentores e administradores"
         : active === "Ranking"
           ? "Classificação dos alunos e relatórios analíticos"
-          : isMentor
-            ? "Visão geral da mentoria — todos os alunos e matérias"
-            : "Seu painel pessoal de estudos";
+          : active === "Gerenciador de Conteúdo"
+            ? "Estrutura curricular: matérias, tópicos e subtópicos"
+            : active === "Atividades"
+              ? "Links oficiais e atividades atribuídas — com pré-visualização do aluno"
+              : active === "Minhas Atividades"
+                ? "Todas as atividades atribuídas pelo seu professor"
+                : active === "Meus Registros"
+                  ? "Seu histórico de acertos e erros"
+                  : isMentor
+                    ? "Visão geral da mentoria — todos os alunos e matérias"
+                    : "Seu painel pessoal de estudos";
 
   return (
     <div className="flex min-h-screen w-full bg-background">
