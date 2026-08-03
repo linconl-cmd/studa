@@ -64,6 +64,18 @@ export function ActivityManager() {
   const subjects = useSubjects();
   const topics = useTopics();
   const updateUrl = useUpdateTopicUrl();
+  const { user } = useSession();
+  const { data: role } = useRole(user?.id);
+  const studentsQuery = useStudents(role === "mentor" ? user?.id : undefined);
+  const results = useExerciseResults();
+  const students = useMemo(
+    () =>
+      (studentsQuery.data ?? [])
+        .filter((s) => s.role === "student")
+        .map((s) => ({ id: s.id, full_name: s.full_name, email: s.email })),
+    [studentsQuery.data],
+  );
+
   const [subjectId, setSubjectId] = useState<string | undefined>();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
