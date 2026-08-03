@@ -161,10 +161,13 @@ export function ActivityManager() {
               topicId={t.id}
               topicTitle={t.title}
               officialUrl={drafts[t.id]?.trim() || t.exercise_url}
+              students={students}
+              results={results.data ?? []}
               onPreview={(activity) =>
                 setPreview({ activity, context: contextFor(t.id, t.parent_topic_id) })
               }
             />
+
           </li>
         ))}
       </ul>
