@@ -63,6 +63,10 @@ export function StudentDashboard({
     return <RankingScreen highlightUserId={userId} />;
   }
 
+  if (section === "Minhas Atividades") {
+    return <ActivityBoard userId={userId} />;
+  }
+
   const showHome = section === "Home";
 
   return (
@@ -111,7 +115,15 @@ export function StudentDashboard({
         </div>
       )}
 
-      <ActivityBoard userId={userId} />
+      {showHome && (
+        <button
+          onClick={() => onSelectSection?.("Minhas Atividades")}
+          className="self-start rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+        >
+          Ver minhas atividades
+        </button>
+      )}
+
 
       <Card>
         <h2 className="inline-flex items-center gap-2 font-display text-lg font-bold">
