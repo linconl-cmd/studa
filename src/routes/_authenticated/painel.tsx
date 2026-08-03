@@ -6,6 +6,7 @@ import {
   FolderOpen,
   Trophy,
   BookOpen,
+  ListChecks,
   ShieldCheck,
   Palette,
   Loader2,
