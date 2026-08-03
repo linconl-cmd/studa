@@ -9,6 +9,7 @@ export type Topic = {
   subject_id: string;
   title: string;
   exercise_url: string | null;
+  parent_topic_id: string | null;
 };
 
 export function useSubjects() {
@@ -31,7 +32,7 @@ export function useTopics() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("topics")
-        .select("id, subject_id, title, exercise_url")
+        .select("id, subject_id, title, exercise_url, parent_topic_id")
         .order("created_at");
       if (error) throw error;
       return (data ?? []) as Topic[];
