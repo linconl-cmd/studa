@@ -180,16 +180,26 @@ export function ActivityManager() {
   );
 }
 
+export type StudentLite = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+};
+
 function TopicActivities({
   topicId,
   topicTitle,
   officialUrl,
   onPreview,
+  students,
+  results,
 }: {
   topicId: string;
   topicTitle: string;
   officialUrl: string | null;
   onPreview: (activity: Activity) => void;
+  students: StudentLite[];
+  results: ResultRow[];
 }) {
   const activities = useActivities();
   const create = useCreateActivity();
@@ -198,6 +208,7 @@ function TopicActivities({
   const [date, setDate] = useState(todayISO());
 
   const mine = (activities.data ?? []).filter((a) => a.topic_id === topicId);
+
 
   const draft: Activity = {
     id: "preview",
