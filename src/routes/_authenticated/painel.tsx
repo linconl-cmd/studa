@@ -6,6 +6,7 @@ import {
   FolderOpen,
   Trophy,
   BookOpen,
+  ListChecks,
   ShieldCheck,
   Palette,
   Loader2,
@@ -25,12 +26,14 @@ const mentorNav: NavItem[] = [
   { label: "Home", icon: House },
   { label: "Meus Alunos", icon: Users },
   { label: "Gerenciador de Conteúdo", icon: FolderOpen },
+  { label: "Atividades", icon: ListChecks },
   { label: "Ranking", icon: Trophy },
 ];
 
 const studentNav: NavItem[] = [
   { label: "Home", icon: House },
-  { label: "Meus Estudos", icon: BookOpen },
+  { label: "Minhas Atividades", icon: ListChecks },
+  { label: "Meus Registros", icon: BookOpen },
   { label: "Ranking", icon: Trophy },
 ];
 
@@ -100,9 +103,17 @@ function Painel() {
         ? "Todos os cadastros da plataforma — alunos, mentores e administradores"
         : active === "Ranking"
           ? "Classificação dos alunos e relatórios analíticos"
-          : isMentor
-            ? "Visão geral da mentoria — todos os alunos e matérias"
-            : "Seu painel pessoal de estudos";
+          : active === "Gerenciador de Conteúdo"
+            ? "Estrutura curricular: matérias, tópicos e subtópicos"
+            : active === "Atividades"
+              ? "Links oficiais e atividades atribuídas — com pré-visualização do aluno"
+              : active === "Minhas Atividades"
+                ? "Todas as atividades atribuídas pelo seu professor"
+                : active === "Meus Registros"
+                  ? "Seu histórico de acertos e erros"
+                  : isMentor
+                    ? "Visão geral da mentoria — todos os alunos e matérias"
+                    : "Seu painel pessoal de estudos";
 
   return (
     <div className="flex min-h-screen w-full bg-background">

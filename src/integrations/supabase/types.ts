@@ -235,6 +235,7 @@ export type Database = {
           created_at: string
           exercise_url: string | null
           id: string
+          parent_topic_id: string | null
           subject_id: string
           title: string
         }
@@ -242,6 +243,7 @@ export type Database = {
           created_at?: string
           exercise_url?: string | null
           id?: string
+          parent_topic_id?: string | null
           subject_id: string
           title: string
         }
@@ -249,10 +251,18 @@ export type Database = {
           created_at?: string
           exercise_url?: string | null
           id?: string
+          parent_topic_id?: string | null
           subject_id?: string
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "topics_parent_topic_id_fkey"
+            columns: ["parent_topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "topics_subject_id_fkey"
             columns: ["subject_id"]
