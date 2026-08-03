@@ -155,18 +155,27 @@ export function useRanking(topicId?: string) {
   });
 }
 
-export function useStudents() {
+/**
+ * Lista alunos. Mentores devem passar `teacherId` (o próprio id) para que apenas
+ * os alunos vinculados a eles sejam consultados. O super_admin passa `undefined`
+ * e vê todos. A RLS já isola no banco; este filtro é a segunda barreira.
+ */
+export function useStudents(teacherId?: string | null) {
   return useQuery({
-    queryKey: ["students"],
+    queryKey: ["students", teacherId ?? "all"],
     queryFn: async () => {
+      let query = supabase.from("profiles").select("id, full_name, email, created_at, teacher_id");
+      if (teacherId) query = query.eq("teacher_id", teacherId);
       const [{ data: profiles, error }, { data: roles, error: rolesError }] = await Promise.all([
-        supabase.from("profiles").select("id, full_name, email, created_at, teacher_id"),
+        query,
         supabase.from("user_roles").select("user_id, role"),
       ]);
       if (error) throw error;
       if (rolesError) throw rolesError;
       const roleOf = new Map((roles ?? []).map((r) => [r.user_id, r.role]));
-      return (profiles ?? []).map((p) => ({ ...p, role: roleOf.get(p.id) ?? "student" }));
+      return (profiles ?? [])
+        .map((p) => ({ ...p, role: roleOf.get(p.id) ?? "student" }))
+        .filter((p) => (teacherId ? p.role === "student" && p.teacher_id === teacherId : true));
     },
   });
 }
