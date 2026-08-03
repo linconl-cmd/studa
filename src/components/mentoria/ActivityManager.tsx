@@ -1,14 +1,19 @@
 import { useMemo, useState } from "react";
-import { Eye, Link2, Loader2, Trash2, X } from "lucide-react";
+import { ChevronDown, Eye, Link2, Loader2, Trash2, Users, X } from "lucide-react";
 import {
   useActivities,
   useCreateActivity,
   useDeleteActivity,
+  useExerciseResults,
+  useStudents,
   useSubjects,
   useTopics,
   useUpdateTopicUrl,
   type Activity,
+  type ResultRow,
 } from "@/lib/mentoria";
+import { useRole, useSession } from "@/hooks/useSession";
+
 import { formatDateBR, todayISO } from "@/lib/metrics";
 import { ActivityCard } from "@/components/mentoria/ActivityBoard";
 
@@ -59,6 +64,18 @@ export function ActivityManager() {
   const subjects = useSubjects();
   const topics = useTopics();
   const updateUrl = useUpdateTopicUrl();
+  const { user } = useSession();
+  const { data: role } = useRole(user?.id);
+  const studentsQuery = useStudents(role === "mentor" ? user?.id : undefined);
+  const results = useExerciseResults();
+  const students = useMemo(
+    () =>
+      (studentsQuery.data ?? [])
+        .filter((s) => s.role === "student")
+        .map((s) => ({ id: s.id, full_name: s.full_name, email: s.email })),
+    [studentsQuery.data],
+  );
+
   const [subjectId, setSubjectId] = useState<string | undefined>();
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -156,10 +173,13 @@ export function ActivityManager() {
               topicId={t.id}
               topicTitle={t.title}
               officialUrl={drafts[t.id]?.trim() || t.exercise_url}
+              students={students}
+              results={results.data ?? []}
               onPreview={(activity) =>
                 setPreview({ activity, context: contextFor(t.id, t.parent_topic_id) })
               }
             />
+
           </li>
         ))}
       </ul>
@@ -175,16 +195,26 @@ export function ActivityManager() {
   );
 }
 
+export type StudentLite = {
+  id: string;
+  full_name: string | null;
+  email: string | null;
+};
+
 function TopicActivities({
   topicId,
   topicTitle,
   officialUrl,
   onPreview,
+  students,
+  results,
 }: {
   topicId: string;
   topicTitle: string;
   officialUrl: string | null;
   onPreview: (activity: Activity) => void;
+  students: StudentLite[];
+  results: ResultRow[];
 }) {
   const activities = useActivities();
   const create = useCreateActivity();
@@ -193,6 +223,7 @@ function TopicActivities({
   const [date, setDate] = useState(todayISO());
 
   const mine = (activities.data ?? []).filter((a) => a.topic_id === topicId);
+
 
   const draft: Activity = {
     id: "preview",
@@ -255,28 +286,103 @@ function TopicActivities({
       </form>
       <ul className="mt-2 space-y-1">
         {mine.map((a) => (
-          <li key={a.id} className="flex items-center justify-between gap-3 text-xs">
-            <span className="truncate">
-              {formatDateBR(a.due_date)} · {a.title}
-            </span>
-            <span className="flex shrink-0 items-center gap-2">
-              <button
-                onClick={() => onPreview(a)}
-                className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 font-semibold hover:bg-muted"
-              >
-                <Eye className="h-3.5 w-3.5" /> Preview
-              </button>
-              <button
-                onClick={() => del.mutate(a.id)}
-                disabled={del.isPending}
-                className="inline-flex items-center gap-1 rounded-full border border-destructive/30 px-2 py-0.5 font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-50"
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Excluir
-              </button>
-            </span>
-          </li>
+          <ActivityRow
+            key={a.id}
+            activity={a}
+            students={students}
+            results={results}
+            onPreview={onPreview}
+            onDelete={() => del.mutate(a.id)}
+            deleting={del.isPending}
+          />
         ))}
       </ul>
     </div>
   );
 }
+
+/** Linha de atividade com contagem de quem concluiu e quem está pendente. */
+function ActivityRow({
+  activity,
+  students,
+  results,
+  onPreview,
+  onDelete,
+  deleting,
+}: {
+  activity: Activity;
+  students: StudentLite[];
+  results: ResultRow[];
+  onPreview: (activity: Activity) => void;
+  onDelete: () => void;
+  deleting: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const doneIds = new Set(
+    results.filter((r) => r.activity_id === activity.id).map((r) => r.user_id),
+  );
+  const done = students.filter((s) => doneIds.has(s.id));
+  const pending = students.filter((s) => !doneIds.has(s.id));
+
+  return (
+    <li className="rounded-xl bg-card/60 px-2 py-1.5 text-xs">
+      <div className="flex items-center justify-between gap-3">
+        <span className="truncate">
+          {formatDateBR(activity.due_date)} · {activity.title}
+        </span>
+        <span className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 font-semibold hover:bg-muted"
+          >
+            <Users className="h-3.5 w-3.5" /> {done.length}/{students.length} concluíram
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+          <button
+            onClick={() => onPreview(activity)}
+            className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 font-semibold hover:bg-muted"
+          >
+            <Eye className="h-3.5 w-3.5" /> Preview
+          </button>
+          <button
+            onClick={onDelete}
+            disabled={deleting}
+            className="inline-flex items-center gap-1 rounded-full border border-destructive/30 px-2 py-0.5 font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-50"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Excluir
+          </button>
+        </span>
+      </div>
+
+      {open && (
+        <div className="mt-2 grid gap-3 border-t border-border/60 pt-2 sm:grid-cols-2">
+          <div>
+            <p className="font-semibold text-primary">Concluíram ({done.length})</p>
+            <ul className="mt-1 space-y-0.5 text-muted-foreground">
+              {done.length === 0 && <li>Ninguém registrou ainda.</li>}
+              {done.map((s) => (
+                <li key={s.id} className="truncate">
+                  {s.full_name?.trim() || s.email || "Aluno"}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="font-semibold text-destructive">Pendentes ({pending.length})</p>
+            <ul className="mt-1 space-y-0.5 text-muted-foreground">
+              {pending.length === 0 && <li>Todos concluíram 🎉</li>}
+              {pending.map((s) => (
+                <li key={s.id} className="truncate">
+                  {s.full_name?.trim() || s.email || "Aluno"}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </li>
+  );
+}
+
