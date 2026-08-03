@@ -64,7 +64,13 @@ export function ContentManager() {
             if (!subjectTitle.trim()) return;
             createSubject.mutate(
               { title: subjectTitle.trim() },
-              { onSuccess: () => { setSubjectTitle(""); ok(); }, onError: fail },
+              {
+                onSuccess: () => {
+                  setSubjectTitle("");
+                  ok();
+                },
+                onError: fail,
+              },
             );
           }}
         >
@@ -94,7 +100,13 @@ export function ContentManager() {
             if (!sid || !topicTitle.trim()) return;
             createTopic.mutate(
               { subject_id: sid, title: topicTitle.trim() },
-              { onSuccess: () => { setTopicTitle(""); ok(); }, onError: fail },
+              {
+                onSuccess: () => {
+                  setTopicTitle("");
+                  ok();
+                },
+                onError: fail,
+              },
             );
           }}
         >
@@ -141,7 +153,13 @@ export function ContentManager() {
                 title: subTitle.trim(),
                 parent_topic_id: parent.id,
               },
-              { onSuccess: () => { setSubTitle(""); ok(); }, onError: fail },
+              {
+                onSuccess: () => {
+                  setSubTitle("");
+                  ok();
+                },
+                onError: fail,
+              },
             );
           }}
         >
