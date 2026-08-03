@@ -12,6 +12,7 @@ import { RankingScreen } from "@/components/mentoria/Ranking";
 import { StudentDetail } from "@/components/mentoria/StudentDetail";
 import { ContentManager } from "@/components/mentoria/ContentManager";
 import { ActivityManager } from "@/components/mentoria/ActivityManager";
+import { useRole, useSession } from "@/hooks/useSession";
 
 function Card({ children }: { children: React.ReactNode }) {
   return <section className="rounded-3xl bg-card p-6 shadow-soft">{children}</section>;
@@ -24,7 +25,10 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
   const showActivities = section === "Atividades";
   const showRanking = section === "Ranking";
 
-  const students = useStudents();
+  const { user } = useSession();
+  const { data: role } = useRole(user?.id);
+  // Mentor: apenas os próprios alunos. Admin master: todos.
+  const students = useStudents(role === "mentor" ? user?.id : undefined);
   const sessions = useStudySessions();
   const results = useExerciseResults();
   const subjects = useSubjects();
