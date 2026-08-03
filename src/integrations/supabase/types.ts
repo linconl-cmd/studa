@@ -57,6 +57,7 @@ export type Database = {
       }
       branding_settings: {
         Row: {
+          allow_mentor_branding: boolean
           created_at: string
           id: string
           logo_url: string | null
@@ -66,6 +67,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allow_mentor_branding?: boolean
           created_at?: string
           id?: string
           logo_url?: string | null
@@ -75,6 +77,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allow_mentor_branding?: boolean
           created_at?: string
           id?: string
           logo_url?: string | null
@@ -323,6 +326,10 @@ export type Database = {
           user_id: string
           wrong_count: number
         }[]
+      }
+      set_mentor_branding_permission: {
+        Args: { _allowed: boolean }
+        Returns: boolean
       }
       set_student_teacher: {
         Args: { _student_id: string; _teacher_id: string }
