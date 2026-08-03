@@ -1,35 +1,27 @@
-import { useMemo, useState } from "react";
-import { Users, Clock, CheckCircle2, XCircle, Plus, Loader2, Trash2, Link2 } from "lucide-react";
+import { useState } from "react";
+import { Users, Clock, CheckCircle2, XCircle } from "lucide-react";
 import {
-  useCreateSubject,
-  useCreateTopic,
-  useDeleteSubject,
-  useDeleteTopic,
   useExerciseResults,
   useStudents,
   useStudySessions,
   useSubjects,
   useTopics,
-  useUpdateTopicUrl,
-  useActivities,
-  useCreateActivity,
-  useDeleteActivity,
 } from "@/lib/mentoria";
-import { lastDays, pct, todayISO, formatDateBR } from "@/lib/metrics";
+import { lastDays, pct } from "@/lib/metrics";
 import { RankingScreen } from "@/components/mentoria/Ranking";
 import { StudentDetail } from "@/components/mentoria/StudentDetail";
+import { ContentManager } from "@/components/mentoria/ContentManager";
+import { ActivityManager } from "@/components/mentoria/ActivityManager";
 
 function Card({ children }: { children: React.ReactNode }) {
   return <section className="rounded-3xl bg-card p-6 shadow-soft">{children}</section>;
 }
 
-const input =
-  "w-full rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-sm outline-none focus:border-primary";
-
 export function MentorDashboard({ section = "Home" }: { section?: string }) {
   const showHome = section === "Home";
   const showStudents = section === "Meus Alunos";
   const showContent = section === "Gerenciador de Conteúdo";
+  const showActivities = section === "Atividades";
   const showRanking = section === "Ranking";
 
   const students = useStudents();
