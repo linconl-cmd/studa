@@ -15,14 +15,22 @@ import { formatDateBR, pct, todayISO } from "@/lib/metrics";
 const input =
   "w-full rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-sm outline-none focus:border-primary";
 
-function ActivityCard({
+/**
+ * Card da atividade como o aluno vê.
+ * `preview` deixa o card apenas visual (usado pelo professor em "Visualizar como aluno").
+ */
+export function ActivityCard({
   activity,
   userId,
   result,
+  context,
+  preview = false,
 }: {
   activity: Activity;
-  userId: string;
+  userId?: string;
   result?: ResultRow;
+  context?: string;
+  preview?: boolean;
 }) {
   const logResult = useLogResult();
   const [acertos, setAcertos] = useState("");
@@ -35,7 +43,10 @@ function ActivityCard({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{activity.title}</p>
-          <p className="text-xs text-muted-foreground">{formatDateBR(activity.due_date)}</p>
+          <p className="text-xs text-muted-foreground">
+            {formatDateBR(activity.due_date)}
+            {context ? ` · ${context}` : ""}
+          </p>
         </div>
         <span
           className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
@@ -70,6 +81,7 @@ function ActivityCard({
           className="mt-3 grid gap-2 sm:grid-cols-[1fr_1fr_auto]"
           onSubmit={(e) => {
             e.preventDefault();
+            if (preview || !userId) return;
             const a = parseCount(acertos);
             const b = parseCount(erros);
             if (a === null || b === null) {
@@ -97,6 +109,7 @@ function ActivityCard({
             min={0}
             step={1}
             inputMode="numeric"
+            disabled={preview}
             placeholder="Quantidade de Acertos"
             value={acertos}
             onChange={(e) => setAcertos(e.target.value.replace(/[^\d]/g, ""))}
@@ -108,13 +121,14 @@ function ActivityCard({
             min={0}
             step={1}
             inputMode="numeric"
+            disabled={preview}
             placeholder="Quantidade de Erros"
             value={erros}
             onChange={(e) => setErros(e.target.value.replace(/[^\d]/g, ""))}
             aria-label={`Quantidade de Erros em ${activity.title}`}
           />
           <button
-            disabled={logResult.isPending}
+            disabled={logResult.isPending || preview}
             className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-60"
           >
             {logResult.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Concluir
@@ -133,15 +147,16 @@ function ActivityCard({
   );
 }
 
+type Filter = "Pendentes" | "Concluídas" | "Todas";
+
+/** Tela "Minhas Atividades": lista única e centralizada de tudo que o professor atribuiu. */
 export function ActivityBoard({ userId }: { userId: string }) {
   const subjects = useSubjects();
   const topics = useTopics();
   const activities = useActivities();
   const results = useExerciseResults(userId);
 
-  const [subjectId, setSubjectId] = useState<string | undefined>();
-  const currentSubject = subjectId ?? subjects.data?.[0]?.id;
-  const myTopics = (topics.data ?? []).filter((t) => t.subject_id === currentSubject);
+  const [filter, setFilter] = useState<Filter>("Pendentes");
 
   const resultByActivity = useMemo(
     () =>
@@ -151,73 +166,76 @@ export function ActivityBoard({ userId }: { userId: string }) {
     [results.data],
   );
 
+  const contextOf = useMemo(() => {
+    const subjectTitle = new Map((subjects.data ?? []).map((s) => [s.id, s.title]));
+    const map = new Map<string, string>();
+    for (const t of topics.data ?? []) {
+      const parent = (topics.data ?? []).find((p) => p.id === t.parent_topic_id);
+      const trail = [subjectTitle.get(t.subject_id), parent?.title, t.title]
+        .filter(Boolean)
+        .join(" › ");
+      map.set(t.id, trail);
+    }
+    return map;
+  }, [subjects.data, topics.data]);
+
+  const known = new Set((topics.data ?? []).map((t) => t.id));
+  const all = (activities.data ?? []).filter((a) => known.has(a.topic_id));
+  const list = all.filter((a) => {
+    const done = resultByActivity.has(a.id);
+    return filter === "Todas" || (filter === "Pendentes" ? !done : done);
+  });
+
+  const loading = activities.isLoading || topics.isLoading || results.isLoading;
+  const pendentes = all.filter((a) => !resultByActivity.has(a.id)).length;
+
   return (
     <section className="rounded-3xl bg-card p-6 shadow-soft">
-      <div className="flex flex-wrap items-center gap-2">
-        {(subjects.data ?? []).map((s) => (
+      <h2 className="font-display text-lg font-bold">Minhas Atividades</h2>
+      <p className="text-xs text-muted-foreground">
+        {pendentes} pendente{pendentes === 1 ? "" : "s"} · abra o caderno e registre seus acertos e
+        erros
+      </p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {(["Pendentes", "Concluídas", "Todas"] as Filter[]).map((f) => (
           <button
-            key={s.id}
-            onClick={() => setSubjectId(s.id)}
+            key={f}
+            onClick={() => setFilter(f)}
             className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-              s.id === currentSubject
+              f === filter
                 ? "bg-secondary text-secondary-foreground"
                 : "bg-muted text-muted-foreground hover:bg-secondary/60"
             }`}
           >
-            {s.title}
+            {f}
           </button>
         ))}
       </div>
 
-      <h2 className="mt-5 font-display text-lg font-bold">Atividades por Tópico</h2>
-      <p className="text-xs text-muted-foreground">
-        Cada tópico pode ter várias atividades no mesmo dia — abra o caderno e registre acertos e
-        erros de cada uma
-      </p>
-
-      <div className="mt-5 space-y-5">
-        {myTopics.length === 0 && (
-          <p className="text-sm text-muted-foreground">Nenhum tópico disponível ainda.</p>
-        )}
-        {myTopics.map((t) => {
-          const acts = (activities.data ?? []).filter((a) => a.topic_id === t.id);
-          const byDate = new Map<string, Activity[]>();
-          for (const a of acts) {
-            const list = byDate.get(a.due_date) ?? [];
-            list.push(a);
-            byDate.set(a.due_date, list);
-          }
-          return (
-            <div key={t.id} className="rounded-2xl border border-border/60 p-4">
-              <p className="font-display text-sm font-bold">{t.title}</p>
-              {acts.length === 0 ? (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Nenhuma atividade cadastrada pelo mentor.
-                </p>
-              ) : (
-                [...byDate.entries()].map(([date, list]) => (
-                  <div key={date} className="mt-3">
-                    <p className="text-xs font-semibold text-muted-foreground">
-                      {formatDateBR(date)} · {list.length}{" "}
-                      {list.length === 1 ? "atividade" : "atividades"}
-                    </p>
-                    <ul className="mt-2 space-y-2">
-                      {list.map((a) => (
-                        <ActivityCard
-                          key={a.id}
-                          activity={a}
-                          userId={userId}
-                          result={resultByActivity.get(a.id)}
-                        />
-                      ))}
-                    </ul>
-                  </div>
-                ))
-              )}
-            </div>
-          );
-        })}
-      </div>
+      {loading ? (
+        <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Carregando atividades…
+        </div>
+      ) : list.length === 0 ? (
+        <p className="mt-6 text-sm text-muted-foreground">
+          {filter === "Pendentes"
+            ? "Nenhuma atividade pendente. Bom trabalho! 🎉"
+            : "Nenhuma atividade nesta visão."}
+        </p>
+      ) : (
+        <ul className="mt-5 space-y-2">
+          {list.map((a) => (
+            <ActivityCard
+              key={a.id}
+              activity={a}
+              userId={userId}
+              result={resultByActivity.get(a.id)}
+              context={contextOf.get(a.topic_id)}
+            />
+          ))}
+        </ul>
+      )}
     </section>
   );
 }
