@@ -255,28 +255,103 @@ function TopicActivities({
       </form>
       <ul className="mt-2 space-y-1">
         {mine.map((a) => (
-          <li key={a.id} className="flex items-center justify-between gap-3 text-xs">
-            <span className="truncate">
-              {formatDateBR(a.due_date)} · {a.title}
-            </span>
-            <span className="flex shrink-0 items-center gap-2">
-              <button
-                onClick={() => onPreview(a)}
-                className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 font-semibold hover:bg-muted"
-              >
-                <Eye className="h-3.5 w-3.5" /> Preview
-              </button>
-              <button
-                onClick={() => del.mutate(a.id)}
-                disabled={del.isPending}
-                className="inline-flex items-center gap-1 rounded-full border border-destructive/30 px-2 py-0.5 font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-50"
-              >
-                <Trash2 className="h-3.5 w-3.5" /> Excluir
-              </button>
-            </span>
-          </li>
+          <ActivityRow
+            key={a.id}
+            activity={a}
+            students={students}
+            results={results}
+            onPreview={onPreview}
+            onDelete={() => del.mutate(a.id)}
+            deleting={del.isPending}
+          />
         ))}
       </ul>
     </div>
   );
 }
+
+/** Linha de atividade com contagem de quem concluiu e quem está pendente. */
+function ActivityRow({
+  activity,
+  students,
+  results,
+  onPreview,
+  onDelete,
+  deleting,
+}: {
+  activity: Activity;
+  students: StudentLite[];
+  results: ResultRow[];
+  onPreview: (activity: Activity) => void;
+  onDelete: () => void;
+  deleting: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const doneIds = new Set(
+    results.filter((r) => r.activity_id === activity.id).map((r) => r.user_id),
+  );
+  const done = students.filter((s) => doneIds.has(s.id));
+  const pending = students.filter((s) => !doneIds.has(s.id));
+
+  return (
+    <li className="rounded-xl bg-card/60 px-2 py-1.5 text-xs">
+      <div className="flex items-center justify-between gap-3">
+        <span className="truncate">
+          {formatDateBR(activity.due_date)} · {activity.title}
+        </span>
+        <span className="flex shrink-0 items-center gap-2">
+          <button
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 font-semibold hover:bg-muted"
+          >
+            <Users className="h-3.5 w-3.5" /> {done.length}/{students.length} concluíram
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+          <button
+            onClick={() => onPreview(activity)}
+            className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-0.5 font-semibold hover:bg-muted"
+          >
+            <Eye className="h-3.5 w-3.5" /> Preview
+          </button>
+          <button
+            onClick={onDelete}
+            disabled={deleting}
+            className="inline-flex items-center gap-1 rounded-full border border-destructive/30 px-2 py-0.5 font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-50"
+          >
+            <Trash2 className="h-3.5 w-3.5" /> Excluir
+          </button>
+        </span>
+      </div>
+
+      {open && (
+        <div className="mt-2 grid gap-3 border-t border-border/60 pt-2 sm:grid-cols-2">
+          <div>
+            <p className="font-semibold text-primary">Concluíram ({done.length})</p>
+            <ul className="mt-1 space-y-0.5 text-muted-foreground">
+              {done.length === 0 && <li>Ninguém registrou ainda.</li>}
+              {done.map((s) => (
+                <li key={s.id} className="truncate">
+                  {s.full_name?.trim() || s.email || "Aluno"}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="font-semibold text-destructive">Pendentes ({pending.length})</p>
+            <ul className="mt-1 space-y-0.5 text-muted-foreground">
+              {pending.length === 0 && <li>Todos concluíram 🎉</li>}
+              {pending.map((s) => (
+                <li key={s.id} className="truncate">
+                  {s.full_name?.trim() || s.email || "Aluno"}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </li>
+  );
+}
+
