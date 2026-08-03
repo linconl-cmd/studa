@@ -25,12 +25,14 @@ const mentorNav: NavItem[] = [
   { label: "Home", icon: House },
   { label: "Meus Alunos", icon: Users },
   { label: "Gerenciador de Conteúdo", icon: FolderOpen },
+  { label: "Atividades", icon: ListChecks },
   { label: "Ranking", icon: Trophy },
 ];
 
 const studentNav: NavItem[] = [
   { label: "Home", icon: House },
-  { label: "Meus Estudos", icon: BookOpen },
+  { label: "Minhas Atividades", icon: ListChecks },
+  { label: "Meus Registros", icon: BookOpen },
   { label: "Ranking", icon: Trophy },
 ];
 
