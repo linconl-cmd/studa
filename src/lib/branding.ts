@@ -6,6 +6,7 @@ export type Branding = {
   tagline: string;
   logo_url: string | null;
   primary_color: string;
+  allow_mentor_branding: boolean;
 };
 
 export const DEFAULT_BRANDING: Branding = {
@@ -13,6 +14,7 @@ export const DEFAULT_BRANDING: Branding = {
   tagline: "Mentoria de Estudos",
   logo_url: null,
   primary_color: "#17A398",
+  allow_mentor_branding: false,
 };
 
 export const PALETTES = [
@@ -31,7 +33,7 @@ export function useBranding() {
     queryFn: async (): Promise<Branding> => {
       const { data, error } = await supabase
         .from("branding_settings")
-        .select("platform_name, tagline, logo_url, primary_color")
+        .select("platform_name, tagline, logo_url, primary_color, allow_mentor_branding")
         .eq("id", "default")
         .maybeSingle();
       if (error) throw error;
@@ -43,7 +45,9 @@ export function useBranding() {
 export function useUpdateBranding() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (input: Partial<Branding>) => {
+    mutationFn: async (
+      input: Partial<Omit<Branding, "allow_mentor_branding">>,
+    ) => {
       const { error } = await supabase
         .from("branding_settings")
         .upsert({ id: "default", ...input })
@@ -53,6 +57,21 @@ export function useUpdateBranding() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["branding"] }),
   });
 }
+
+/** Admin Master decide se mentores podem editar a marca. */
+export function useSetMentorBrandingPermission() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (allowed: boolean) => {
+      const { error } = await supabase.rpc("set_mentor_branding_permission", {
+        _allowed: allowed,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["branding"] }),
+  });
+}
+
 
 /** Luminância relativa simples para escolher texto claro/escuro sobre a cor. */
 export function readableForeground(hex: string) {
