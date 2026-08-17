@@ -67,8 +67,8 @@ function Painel() {
 
   const isSuperAdmin = role.data === "super_admin";
   const isMentor = isStaff(role.data);
-  const branding = useBranding();
-  const canEditBranding = isSuperAdmin || (branding.data?.allow_mentor_branding ?? false);
+  const mentorBrandingAllowed = useMentorBrandingAllowed(isMentor);
+  const canEditBranding = isSuperAdmin || (mentorBrandingAllowed.data ?? false);
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
