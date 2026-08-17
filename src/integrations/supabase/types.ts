@@ -298,7 +298,30 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      branding_public: {
+        Row: {
+          id: string | null
+          logo_url: string | null
+          platform_name: string | null
+          primary_color: string | null
+          tagline: string | null
+        }
+        Insert: {
+          id?: string | null
+          logo_url?: string | null
+          platform_name?: string | null
+          primary_color?: string | null
+          tagline?: string | null
+        }
+        Update: {
+          id?: string | null
+          logo_url?: string | null
+          platform_name?: string | null
+          primary_color?: string | null
+          tagline?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       bootstrap_current_user: {
