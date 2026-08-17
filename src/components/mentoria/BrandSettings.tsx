@@ -66,7 +66,7 @@ export function BrandSettings({
     );
   }
 
-  const allowMentor = branding.data?.allow_mentor_branding ?? false;
+  const allowMentor = mentorAllowed.data ?? false;
 
   return (
     <form onSubmit={handleSave} className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
