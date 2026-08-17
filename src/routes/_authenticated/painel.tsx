@@ -16,7 +16,7 @@ import { MentorDashboard } from "@/components/mentoria/MentorDashboard";
 import { StudentDashboard } from "@/components/mentoria/StudentDashboard";
 import { AdminUsers } from "@/components/mentoria/AdminUsers";
 import { BrandSettings } from "@/components/mentoria/BrandSettings";
-import { useBranding } from "@/lib/branding";
+import { useMentorBrandingAllowed } from "@/lib/branding";
 import { MyProfile } from "@/components/mentoria/MyProfile";
 import { AppHeader } from "@/components/AppHeader";
 import { isStaff, useProfile, useRole, useSession } from "@/hooks/useSession";
