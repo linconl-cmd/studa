@@ -6,7 +6,6 @@ export type Branding = {
   tagline: string;
   logo_url: string | null;
   primary_color: string;
-  allow_mentor_branding: boolean;
 };
 
 export const DEFAULT_BRANDING: Branding = {
@@ -14,7 +13,6 @@ export const DEFAULT_BRANDING: Branding = {
   tagline: "Mentoria de Estudos",
   logo_url: null,
   primary_color: "#17A398",
-  allow_mentor_branding: false,
 };
 
 export const PALETTES = [
@@ -26,18 +24,37 @@ export const PALETTES = [
   { label: "Grafite", color: "#334155" },
 ];
 
+/** Dados visuais da marca — visíveis publicamente (view sem campos de configuração). */
 export function useBranding() {
   return useQuery({
     queryKey: ["branding"],
     staleTime: 60_000,
     queryFn: async (): Promise<Branding> => {
       const { data, error } = await supabase
-        .from("branding_settings")
-        .select("platform_name, tagline, logo_url, primary_color, allow_mentor_branding")
+        .from("branding_public")
+        .select("platform_name, tagline, logo_url, primary_color")
         .eq("id", "default")
         .maybeSingle();
       if (error) throw error;
-      return data ?? DEFAULT_BRANDING;
+      return (data as Branding | null) ?? DEFAULT_BRANDING;
+    },
+  });
+}
+
+/** Flag de permissão — restrita a usuários autenticados. */
+export function useMentorBrandingAllowed(enabled = true) {
+  return useQuery({
+    queryKey: ["branding-permission"],
+    enabled,
+    staleTime: 60_000,
+    queryFn: async (): Promise<boolean> => {
+      const { data, error } = await supabase
+        .from("branding_settings")
+        .select("allow_mentor_branding")
+        .eq("id", "default")
+        .maybeSingle();
+      if (error) throw error;
+      return data?.allow_mentor_branding ?? false;
     },
   });
 }
