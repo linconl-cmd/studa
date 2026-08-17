@@ -62,9 +62,7 @@ export function useMentorBrandingAllowed(enabled = true) {
 export function useUpdateBranding() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (
-      input: Partial<Omit<Branding, "allow_mentor_branding">>,
-    ) => {
+    mutationFn: async (input: Partial<Branding>) => {
       const { error } = await supabase
         .from("branding_settings")
         .upsert({ id: "default", ...input })
