@@ -83,7 +83,7 @@ export function useSetMentorBrandingPermission() {
       });
       if (error) throw error;
     },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["branding"] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["branding-permission"] }),
   });
 }
 
