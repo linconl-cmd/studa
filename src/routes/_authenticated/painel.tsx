@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Palette,
   Loader2,
+  Target,
 } from "lucide-react";
 import { Sidebar, type NavItem } from "@/components/mentoria/Sidebar";
 import { MentorDashboard } from "@/components/mentoria/MentorDashboard";
@@ -28,6 +29,7 @@ const mentorNav: NavItem[] = [
   { label: "Meus Alunos", icon: Users },
   { label: "Gerenciador de Conteúdo", icon: FolderOpen },
   { label: "Atividades", icon: ListChecks },
+  { label: "Planejamento Individual", icon: Target },
   { label: "Ranking", icon: Trophy },
 ];
 
@@ -112,6 +114,8 @@ function Painel() {
             ? "Estrutura curricular: matérias, tópicos e subtópicos"
             : active === "Atividades"
               ? "Links oficiais e atividades atribuídas — com pré-visualização do aluno"
+              : active === "Planejamento Individual"
+                ? "Plano exclusivo por aluno, com prazos e materiais de apoio"
               : active === "Minhas Atividades"
                 ? "Todas as atividades atribuídas pelo seu professor"
                 : active === "Meus Registros"

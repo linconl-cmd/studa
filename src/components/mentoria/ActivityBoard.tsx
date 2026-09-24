@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { CheckCircle2, Circle, ExternalLink, Loader2 } from "lucide-react";
+import { BookOpen, CalendarClock, CheckCircle2, Circle, ExternalLink, Loader2, PlayCircle, Target } from "lucide-react";
 import {
   parseCount,
   useActivities,
@@ -43,10 +43,24 @@ export function ActivityCard({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold">{activity.title}</p>
-          <p className="text-xs text-muted-foreground">
-            {formatDateBR(activity.due_date)}
-            {context ? ` · ${context}` : ""}
-          </p>
+          {context && <p className="text-xs text-muted-foreground">{context}</p>}
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+            <span
+              className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                !done && activity.due_date < todayISO()
+                  ? "bg-destructive/10 text-destructive"
+                  : "bg-card text-foreground"
+              }`}
+            >
+              <CalendarClock className="h-3.5 w-3.5" /> Prazo: {formatDateBR(activity.due_date)}
+              {!done && activity.due_date < todayISO() ? " · encerrado" : ""}
+            </span>
+            {activity.student_id && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-semibold text-secondary-foreground">
+                <Target className="h-3.5 w-3.5" /> Planejamento individual
+              </span>
+            )}
+          </div>
         </div>
         <span
           className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
@@ -69,6 +83,23 @@ export function ActivityCard({
         </a>
       ) : (
         <p className="mt-3 text-xs text-muted-foreground">Sem link cadastrado</p>
+      )}
+
+      {(activity.support_links ?? []).length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {(activity.support_links ?? []).map((l, i) => (
+            <a
+              key={i}
+              href={l.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+            >
+              {l.kind === "video" ? <PlayCircle className="h-3.5 w-3.5" /> : <BookOpen className="h-3.5 w-3.5" />}
+              {l.label?.trim() || (l.kind === "video" ? "Videoaula" : "Apostila")}
+            </a>
+          ))}
+        </div>
       )}
 
       {done && result ? (
@@ -147,7 +178,7 @@ export function ActivityCard({
   );
 }
 
-type Filter = "Pendentes" | "Concluídas" | "Todas";
+type Filter = "Pendentes" | "Concluídas";
 
 /** Tela "Minhas Atividades": lista única e centralizada de tudo que o professor atribuiu. */
 export function ActivityBoard({ userId }: { userId: string }) {
@@ -180,10 +211,12 @@ export function ActivityBoard({ userId }: { userId: string }) {
   }, [subjects.data, topics.data]);
 
   const known = new Set((topics.data ?? []).map((t) => t.id));
-  const all = (activities.data ?? []).filter((a) => known.has(a.topic_id));
+  const all = (activities.data ?? [])
+    .filter((a) => known.has(a.topic_id) && (!a.student_id || a.student_id === userId))
+    .sort((x, y) => x.due_date.localeCompare(y.due_date));
   const list = all.filter((a) => {
     const done = resultByActivity.has(a.id);
-    return filter === "Todas" || (filter === "Pendentes" ? !done : done);
+    return filter === "Pendentes" ? !done : done;
   });
 
   const loading = activities.isLoading || topics.isLoading || results.isLoading;
@@ -198,7 +231,7 @@ export function ActivityBoard({ userId }: { userId: string }) {
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        {(["Pendentes", "Concluídas", "Todas"] as Filter[]).map((f) => (
+        {(["Pendentes", "Concluídas"] as Filter[]).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
@@ -208,7 +241,7 @@ export function ActivityBoard({ userId }: { userId: string }) {
                 : "bg-muted text-muted-foreground hover:bg-secondary/60"
             }`}
           >
-            {f}
+            {f} ({f === "Pendentes" ? pendentes : all.length - pendentes})
           </button>
         ))}
       </div>

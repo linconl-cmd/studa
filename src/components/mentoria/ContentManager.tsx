@@ -1,3 +1,4 @@
+import { Dropdown } from "@/components/mentoria/Pickers";
 import { useMemo, useState } from "react";
 import { FolderOpen, Loader2, Plus, Trash2 } from "lucide-react";
 import {
@@ -29,6 +30,7 @@ export function ContentManager() {
   const [subTitle, setSubTitle] = useState("");
   const [parentTopic, setParentTopic] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [viewSubject, setViewSubject] = useState("");
 
   const subjectOptions = subjects.data ?? [];
   const parents = useMemo(
@@ -195,11 +197,20 @@ export function ContentManager() {
       </div>
 
       <div className="mt-6 space-y-3">
-        <p className="font-display text-sm font-bold">Estrutura atual</p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <p className="font-display text-sm font-bold">Estrutura atual</p>
+          <Dropdown
+            label="Disciplina"
+            value={viewSubject}
+            onChange={setViewSubject}
+            placeholder="Todas as disciplinas"
+            options={subjectOptions.map((s) => ({ value: s.id, label: s.title }))}
+          />
+        </div>
         {subjectOptions.length === 0 && (
           <p className="text-sm text-muted-foreground">Nenhuma matéria cadastrada.</p>
         )}
-        {subjectOptions.map((s) => (
+        {subjectOptions.filter((s) => !viewSubject || s.id === viewSubject).map((s) => (
           <div key={s.id} className="rounded-2xl bg-muted/50 p-4">
             <div className="flex items-center justify-between gap-3">
               <p className="truncate text-sm font-semibold">{s.title}</p>

@@ -307,7 +307,11 @@ export type Activity = {
   due_date: string;
   position: number;
   created_at: string;
+  student_id?: string | null;
+  support_links?: SupportLink[];
 };
+
+export type SupportLink = { kind: "apostila" | "video"; url: string; label?: string };
 
 export function useActivities() {
   return useQuery({
@@ -315,11 +319,14 @@ export function useActivities() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("activities")
-        .select("id, topic_id, title, exercise_url, due_date, position, created_at")
+        .select("id, topic_id, title, exercise_url, due_date, position, created_at, student_id, support_links")
         .order("due_date", { ascending: false })
         .order("position");
       if (error) throw error;
-      return (data ?? []) as Activity[];
+      return (data ?? []).map((a) => ({
+        ...a,
+        support_links: Array.isArray(a.support_links) ? (a.support_links as SupportLink[]) : [],
+      })) as Activity[];
     },
   });
 }
@@ -332,12 +339,16 @@ export function useCreateActivity() {
       title: string;
       exercise_url?: string | null;
       due_date: string;
+      student_id?: string | null;
+      support_links?: SupportLink[];
     }) => {
       const { error } = await supabase.from("activities").insert({
         topic_id: input.topic_id,
         title: input.title,
         exercise_url: input.exercise_url?.trim() || null,
         due_date: input.due_date,
+        student_id: input.student_id ?? null,
+        support_links: (input.support_links ?? []).filter((l) => l.url.trim()),
       });
       if (error) throw error;
     },
