@@ -21,6 +21,8 @@ export type Database = {
           exercise_url: string | null
           id: string
           position: number
+          student_id: string | null
+          support_links: Json
           title: string
           topic_id: string
           updated_at: string
@@ -31,6 +33,8 @@ export type Database = {
           exercise_url?: string | null
           id?: string
           position?: number
+          student_id?: string | null
+          support_links?: Json
           title: string
           topic_id: string
           updated_at?: string
@@ -41,11 +45,20 @@ export type Database = {
           exercise_url?: string | null
           id?: string
           position?: number
+          student_id?: string | null
+          support_links?: Json
           title?: string
           topic_id?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "activities_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "activities_topic_id_fkey"
             columns: ["topic_id"]
