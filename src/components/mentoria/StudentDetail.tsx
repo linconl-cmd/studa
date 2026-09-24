@@ -67,8 +67,8 @@ export function StudentDetail({
   const ultimoAcesso = ss[0]?.date ?? rr[0]?.date;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-foreground/40 p-4 sm:p-8">
-      <div className="w-full max-w-3xl rounded-3xl bg-card p-6 shadow-soft">
+    <div>
+      <div className="w-full rounded-3xl bg-card p-6 shadow-soft">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="font-display text-2xl font-bold">{studentName}</h2>
