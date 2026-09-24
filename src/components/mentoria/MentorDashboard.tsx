@@ -12,6 +12,8 @@ import { RankingScreen } from "@/components/mentoria/Ranking";
 import { StudentDetail } from "@/components/mentoria/StudentDetail";
 import { ContentManager } from "@/components/mentoria/ContentManager";
 import { ActivityManager } from "@/components/mentoria/ActivityManager";
+import { StudentPlanning } from "@/components/mentoria/StudentPlanning";
+import { Dropdown } from "@/components/mentoria/Pickers";
 import { useRole, useSession } from "@/hooks/useSession";
 
 function Card({ children }: { children: React.ReactNode }) {
@@ -36,7 +38,7 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
 
   const [subjectId, setSubjectId] = useState<string | undefined>();
   const currentSubject = subjectId ?? subjects.data?.[0]?.id;
-  const [selected, setSelected] = useState<{ id: string; name: string } | null>(null);
+  const [selectedId, setSelectedId] = useState("");
 
   const alunos = (students.data ?? []).filter((s) => s.role === "student");
   const days = lastDays(7);
@@ -145,31 +147,35 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
         <Card>
           <h2 className="font-display text-lg font-bold">Meus Alunos</h2>
           <p className="text-xs text-muted-foreground">
-            Clique em um aluno para ver o detalhamento completo
+            Selecione um aluno no menu para ver o detalhamento completo
           </p>
-          <ul className="mt-4 space-y-2">
-            {perStudent.length === 0 && (
-              <li className="text-sm text-muted-foreground">Nenhum aluno cadastrado ainda.</li>
-            )}
-            {perStudent.map((r) => (
-              <li key={r.id}>
-                <button
-                  onClick={() => setSelected({ id: r.id, name: r.nome })}
-                  className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-2xl bg-muted/60 px-4 py-3.5 text-left transition-colors hover:bg-secondary/70"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold">{r.nome}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {Math.floor(r.minutos / 60)}h {r.minutos % 60}m · {r.acertos} ✅ · {r.erros}{" "}
-                      ❌
-                    </p>
-                  </div>
-                  <span className="font-display text-lg font-bold">{r.pct}%</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {students.isLoading ? (
+            <p className="mt-4 text-sm text-muted-foreground">Carregando alunos…</p>
+          ) : perStudent.length === 0 ? (
+            <p className="mt-4 text-sm text-muted-foreground">Nenhum aluno cadastrado ainda.</p>
+          ) : (
+            <div className="mt-4">
+              <Dropdown
+                label="Aluno"
+                value={selectedId}
+                onChange={setSelectedId}
+                placeholder="Escolha um aluno…"
+                options={perStudent.map((r) => ({
+                  value: r.id,
+                  label: `${r.nome} · ${r.pct}% · ${r.acertos} ✅ ${r.erros} ❌`,
+                }))}
+              />
+            </div>
+          )}
         </Card>
+      )}
+
+      {(showHome || showStudents) && selectedId && (
+        <StudentDetail
+          studentId={selectedId}
+          studentName={perStudent.find((p) => p.id === selectedId)?.nome ?? "Aluno"}
+          onClose={() => setSelectedId("")}
+        />
       )}
 
       {(showHome || showStudents) && (
@@ -181,20 +187,13 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
             Desempenho por subtópico · todos os alunos
           </p>
 
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            {(subjects.data ?? []).map((s) => (
-              <button
-                key={s.id}
-                onClick={() => setSubjectId(s.id)}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                  s.id === currentSubject
-                    ? "bg-secondary text-secondary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-secondary/60"
-                }`}
-              >
-                {s.title}
-              </button>
-            ))}
+          <div className="mt-4">
+            <Dropdown
+              label="Disciplina"
+              value={currentSubject ?? ""}
+              onChange={setSubjectId}
+              options={(subjects.data ?? []).map((s) => ({ value: s.id, label: s.title }))}
+            />
           </div>
 
           <div className="mt-5 overflow-x-auto">
@@ -258,13 +257,7 @@ export function MentorDashboard({ section = "Home" }: { section?: string }) {
       {showContent && <ContentManager />}
       {showActivities && <ActivityManager />}
 
-      {selected && (
-        <StudentDetail
-          studentId={selected.id}
-          studentName={selected.name}
-          onClose={() => setSelected(null)}
-        />
-      )}
+      {section === "Planejamento Individual" && <StudentPlanning />}
     </div>
   );
 }
