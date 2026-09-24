@@ -16,6 +16,8 @@ import { useRole, useSession } from "@/hooks/useSession";
 
 import { formatDateBR, todayISO } from "@/lib/metrics";
 import { ActivityCard } from "@/components/mentoria/ActivityBoard";
+import { Dropdown, SupportLinksEditor, validLinks } from "@/components/mentoria/Pickers";
+import type { SupportLink } from "@/lib/mentoria";
 
 const input =
   "w-full rounded-xl border border-border bg-muted/50 px-3 py-2.5 text-sm outline-none focus:border-primary";
@@ -106,20 +108,13 @@ export function ActivityManager() {
         Cadastre o link oficial do caderno de cada tópico e as atividades que o aluno deve concluir
       </p>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        {(subjects.data ?? []).map((s) => (
-          <button
-            key={s.id}
-            onClick={() => setSubjectId(s.id)}
-            className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-              s.id === currentSubject
-                ? "bg-secondary text-secondary-foreground"
-                : "bg-muted text-muted-foreground hover:bg-secondary/60"
-            }`}
-          >
-            {s.title}
-          </button>
-        ))}
+      <div className="mt-4">
+        <Dropdown
+          label="Disciplina"
+          value={currentSubject ?? ""}
+          onChange={setSubjectId}
+          options={(subjects.data ?? []).map((s) => ({ value: s.id, label: s.title }))}
+        />
       </div>
 
       {error && (
@@ -222,7 +217,9 @@ function TopicActivities({
   const [title, setTitle] = useState("");
   const [date, setDate] = useState(todayISO());
 
-  const mine = (activities.data ?? []).filter((a) => a.topic_id === topicId);
+  const mine = (activities.data ?? []).filter((a) => a.topic_id === topicId && !a.student_id);
+  const [links, setLinks] = useState<SupportLink[]>([]);
+  const [linkError, setLinkError] = useState<string | null>(null);
 
 
   const draft: Activity = {
@@ -233,6 +230,7 @@ function TopicActivities({
     due_date: date,
     position: 0,
     created_at: new Date().toISOString(),
+    support_links: links.filter((l) => l.url.trim()),
   };
 
   return (
@@ -245,14 +243,25 @@ function TopicActivities({
         onSubmit={(e) => {
           e.preventDefault();
           if (!title.trim()) return;
+          if (!validLinks(links)) {
+            setLinkError("Os links de apoio devem começar com http:// ou https://");
+            return;
+          }
+          setLinkError(null);
           create.mutate(
             {
               topic_id: topicId,
               title: title.trim(),
               exercise_url: officialUrl,
               due_date: date,
+              support_links: links,
             },
-            { onSuccess: () => setTitle("") },
+            {
+              onSuccess: () => {
+                setTitle("");
+                setLinks([]);
+              },
+            },
           );
         }}
       >
@@ -268,7 +277,8 @@ function TopicActivities({
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          aria-label={`Data da atividade em ${topicTitle}`}
+          aria-label={`Prazo de fechamento em ${topicTitle}`}
+          title="Data de fechamento (prazo)"
         />
         <button
           type="button"
@@ -283,6 +293,13 @@ function TopicActivities({
         >
           {create.isPending && <Loader2 className="h-4 w-4 animate-spin" />} Adicionar
         </button>
+        <div className="sm:col-span-4">
+          <p className="mb-1 text-xs font-semibold text-muted-foreground">
+            Conteúdo de apoio (apostilas e videoaulas)
+          </p>
+          <SupportLinksEditor links={links} onChange={setLinks} />
+          {linkError && <p className="mt-1 text-xs text-destructive">{linkError}</p>}
+        </div>
       </form>
       <ul className="mt-2 space-y-1">
         {mine.map((a) => (
